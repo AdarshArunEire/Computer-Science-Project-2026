@@ -28,26 +28,70 @@ def fill_missing_with_average(df, column):
                     df.loc[i, column] = (prev_val + next_val) / 2
     return df
 
+def ffmc_to_class(ffmc):
+    # Bucketing FFMC into 5 risk levels using standard fire weather thresholds
+    if ffmc < 45:
+        return 0  # Very Low  
+    elif ffmc < 70:
+        return 1  # Low      
+    elif ffmc < 82:
+        return 2  # Medium   
+    elif ffmc < 91:
+        return 3  # High      
+    else:
+        return 4  # Very High 
+
+def isi_to_class(isi):
+    # Bucketing ISI into 5 risk levels using standard fire weather thresholds
+    if isi < 2:
+        return 0  # Very Low  
+    elif isi < 5:
+        return 1  # Low     
+    elif isi < 10:
+        return 2  # Medium   
+    elif isi < 20:
+        return 3  # High      
+    else:
+        return 4  # Very High 
+
+def classify_risk(df):
+    # Classifying each row as one of 5 risk levels: 0=Very Low, 1=Low, 2=Medium, 3=High, 4=Very High
+    # FFMC covers ignition risk, ISI covers spread risk - worst case of the two wins
+    df["ffmc_class"] = df["FFMC"].apply(ffmc_to_class)
+    df["isi_class"]  = df["ISI"].apply(isi_to_class)
+    df["risk_class"] = df[["ffmc_class", "isi_class"]].max(axis=1)
+
+    # Dropping intermediate columns, only keeping the final combined risk class
+    df = df.drop(columns=["ffmc_class", "isi_class"])
+
+    # Printing class distribution so we can check for severe imbalance before modelling
+    risk_labels = ["Very Low", "Low", "Medium", "High", "Very High"]
+    print("\nRisk class distribution:")
+    counts = df["risk_class"].value_counts().sort_index()
+    for i, c in counts.items():
+        print(f"  {i} - {risk_labels[i]}: {c} samples")
+    print(df[["FFMC", "ISI"]].describe())
+
+    return df
+
 def ForestFireDataCleaner(raw_df):
     # 2. Dropping duplicate rows and resetting index
     df = raw_df.drop_duplicates().reset_index(drop=True)
     #print(df.to_string())
 
     # 3. Dropping irrelevant columns: X, Y, month, day, DMC, DC, area
-    # month/day dropped - temporal data not relevant to risk prediction
-    # DMC/DC dropped - long term indices, redundant given FFMC and ISI focus
-    # area dropped - outcome variable, not a risk indicator
+ 
     df = df.drop(columns=["X", "Y", "month", "day", "DMC", "DC", "area"])
     #print(df.to_string())
 
     # 4. Valid ranges for each column: (column, min, max)
     column_ranges = [
-        ("FFMC", 0, 101),    # FFMC valid range by definition
-        ("ISI",  0, 50),     # ISI typical range, rarely exceeds 50
-        ("temp", -20, 60),   # temp typical range in celsius
-        ("RH",   0, 100),    # RH valid range as a percentage
-        ("wind", 0, 100),    # wind typical range in km/h
-        ("rain", 0, 300),    # rain typical range in mm
+        ("FFMC", 0, 101),    
+        ("ISI",  0, 50),     
+        ("temp", -20, 60),   
+        ("RH",   0, 100),    
+        ("wind", 0, 100),    
+        ("rain", 0, 300),    
     ]
 
     # 5. Replacing out of range values with NaN, then filling with average, per column
@@ -55,6 +99,9 @@ def ForestFireDataCleaner(raw_df):
         df = replace_out_of_range(df, column, min_val, max_val)
         df = fill_missing_with_average(df, column)
         #print(df.to_string())
+
+    # 6. Classifying each row into a fire risk level based on FFMC and ISI
+    df = classify_risk(df)
 
     # 16. Export cleaned data and return df
     df = df.dropna().reset_index(drop=True)
