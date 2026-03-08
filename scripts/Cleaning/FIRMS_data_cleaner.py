@@ -3,9 +3,9 @@ import pandas as pd
 # 1. Load raw FIRMS data
 df = pd.read_csv("data/FIRMS/FIRMSdataUncleaned.csv")
 
-# 2. Drop all except acq_date
+# 2. Drop all except acq_date + rename
 df = df[["acq_date"]]
-df = df.rename(columns={"acq_date": "date_of_fire"})
+df.columns = ["date_of_fire"]
 
 # 3. Count rows with same date to get fire count per day
 df = df.groupby("date_of_fire").size().reset_index(name="fire_count") # I ♥ vectorised code
