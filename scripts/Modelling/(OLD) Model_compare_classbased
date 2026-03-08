@@ -164,8 +164,8 @@ plt.show()
 #   1 - Low: 6 samples
 #   2 - Medium: 12 samples
 #   3 - High: 151 samples
-# 4 - Very High: 342 samples
-# - the dataset is very imbalanced, with most samples in the High and Very High risk classes, 
+#   4 - Very High: 342 samples
+# The dataset is very imbalanced, with most samples in the High and Very High risk classes, 
 # and very few in the lower risk classes. This will make it difficult for the models to learn
-#  to predict the lower risk classes accurately. 
-# A postive note - models are not worse than the mean anymore...
+# to predict the lower risk classes accurately. 
+# A postive note - models are not worse than the mean anymore... 
