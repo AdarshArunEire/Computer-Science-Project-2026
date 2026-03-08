@@ -15,7 +15,7 @@ Some notes to self i might need later:
     limitations:
         trained on portugal data, differing in vegetiation land cover human acitivty and a generally different climate. 
         FIRMS is going to be a binary fire/nofire, and the model trains on that. Does it even
-        repersent risk????? gulp.. FIXED went for classes 0-3 instead of 0/1
+        repersent risk????? gulp.. FIXED (not...) went for classes 0-3 instead of 0/1
         SMAP is coming back as some wierd file format. Only points come back as csvs, so im gonna have to average a few to prevent bias.... ARGH
 
     SMAP points: ITS LATITUDE, LONGITUDE this used to be reversed...
@@ -35,3 +35,24 @@ Some notes to self i might need later:
     smap unit value meaning is cm3 of water per cm3 of soil proportion: remeber to figure out how this maps back to 3v analoug of microbit
 
     POWER: i chose to only take the center point of 39.65, -7.65 and run with it czu temp doenst fvary much within that small area
+
+    fire_risk_class from firms proportions after seeing it with the 0s;
+    0.0    0.729138
+    1.0    0.209302
+    3.0    0.031464
+    2.0    0.030096
+    think ill merge 3 and 2 for the sake of a balenced distribution, and change thresholds 
+
+    fire_risk_class
+    0.0    0.729138
+    .0    0.176471
+    2.0    0.094391
+    Name: proportion, dtype: float64
+    fire_risk_class
+    0.0    533
+    1.0    129
+    2.0     69
+    Name: count, dtype: int64
+    0==0, 1==1, else==2, pros are; this is trainable, cons are; this is not low med high anymore, more like none, low, med. More meaningful to model, and more accurate in ireland though!
+
+

@@ -5,23 +5,21 @@ df = pd.read_csv("data/FIRMS/FIRMSdataUncleaned.csv")
 
 # 2. Drop all except acq_date + rename + format
 df = df[["acq_date"]]
-df.columns = ["date_of_fire"]
-df["date_of_fire"] = pd.to_datetime(df["date_of_fire"])
+df.columns = ["Date"]
 
 # 3. Count rows with same date to get fire count per day
-df = df.groupby("date_of_fire").size().reset_index(name="fire_count") # I ♥ vectorised code
+df = df.groupby("Date").size().reset_index(name="fire_count") # I ♥ vectorised code
 
-# 4. Add classification column based on fire count
+# 4. Replace fire count with risk class
 def classify_fire_count(count):
-    if count == 0: # technically dont need but js in case
+    if count == 0:
         return 0
-    elif count <= 3:
+    elif count == 1:
         return 1
-    elif count <= 15:
-        return 2
     else:
-        return 3
-df["fire_risk_class"] = df["fire_count"].apply(classify_fire_count)
+        return 2
+df["fire_count"] = df["fire_count"].apply(classify_fire_count)
+df.columns = ["Date", "fire_risk_class"]
 
 # 5. Export cleaned data
 df.to_csv("data/FIRMS/FIRMSdataCleaned.csv", index=False)

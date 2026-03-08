@@ -29,9 +29,6 @@ df = date_groups["Soil_Moisture"].mean().round(4)
 # 6. Drop leftover Nan (if all days returned Nan)
 df = df.dropna()
 
-# 7. Convert date to datetime format
-df["Date"] = pd.to_datetime(df["Date"])
-
-# 8. Export cleaned data
+# 7. Export cleaned data
 df.to_csv("data/SMAP/SMAPDataCleaned.csv", index=False)
 print("df exported to data/SMAP/SMAPDataCleaned.csv!")
