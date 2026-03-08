@@ -8,7 +8,7 @@ def Microbit_datalogger(filepath):
     ser = serial.Serial()
     ser.baudrate = 115200
     while True: 
-        port = improved_input('Enter the COM port number your Micro:Bit is connected to (e.g. 3 for COM3): ', None, 'int')
+        port = improved_input('Enter the COM port number your Microbit is connected to (eg 3 for COM3): ', None, 'int')
         ser.port = f"COM{port}"
         try:
             ser.open()
@@ -98,8 +98,8 @@ def Microbit_datalogger(filepath):
 # 7. If file ran directly, This code allows you to select a file to append logs into        
 if __name__ == "__main__":
     filepath = input("Enter the filepath to append to,\n"
-                         "click enter to use the default (data\microbit\MicrobitDataUncleaned.csv): ")
+                         "click enter to use the default (data/microbit/MicrobitDataUncleaned.csv): ")
     if filepath == "":
-        filepath = "data\microbit\MicrobitDataUncleaned.csv"
+        filepath = "data/microbit/MicrobitDataUncleaned.csv"
 
     Microbit_datalogger(filepath)
