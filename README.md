@@ -54,5 +54,8 @@ Some notes to self i might need later:
     2.0     69
     Name: count, dtype: int64
     0==0, 1==1, else==2, pros are; this is trainable, cons are; this is not low med high anymore, more like none, low, med. More meaningful to model, and more accurate in ireland though!
+    
+    INSTREAD of 1 model, make 2; one that can only use light temp and mositure, one that can do LOADS. This way i can actually target a real fire index isntead of making fake classes from the fire count of a day. the first model will not be a ml model, just a index calcultor. it will take many more inpiut sensor data, tso the model two value is a ml model trained only on the sneros avlible in micribit
+    https://cwfis.cfs.nrcan.gc.ca/background/summary/fwi is model 1. Model 2 will be a ml model that predicts my calculated fwi index, using only mositure temp humidiy columns. that way, this model can be applied to the microbit sensor data. i dont wanna use senro and simulated mixed, as i belive muicrobit should be a standalone functionality that works without external data.
 
-
+    decided on dropping ml.... picking up tmrw 
