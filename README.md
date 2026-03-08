@@ -33,3 +33,5 @@ Some notes to self i might need later:
     1.0    10%
     5.0    <1%
     smap unit value meaning is cm3 of water per cm3 of soil proportion: remeber to figure out how this maps back to 3v analoug of microbit
+
+    POWER: i chose to only take the center point of 39.65, -7.65 and run with it czu temp doenst fvary much within that small area

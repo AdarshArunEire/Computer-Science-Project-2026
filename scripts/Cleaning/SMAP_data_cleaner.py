@@ -14,8 +14,8 @@ df = df[
 df.columns = ["Date", "ID", "Soil_Moisture", "Qual_Flag"] # Ended up ignoring qual flag as many 
 
 # print proportions of qual 0:7
-print("Proportions of qual flags:")
-print(df["Qual_Flag"].value_counts(normalize=True))
+#print("Proportions of qual flags:")
+#print(df["Qual_Flag"].value_counts(normalize=True))
 
 # 3. Drop rows with soil moisture value of -9999 (missing data)
 df = df[df["Soil_Moisture"] != -9999]
@@ -29,6 +29,9 @@ df = date_groups["Soil_Moisture"].mean().round(4)
 # 6. Drop leftover Nan (if all days returned Nan)
 df = df.dropna()
 
-# 7. Export cleaned data
+# 7. Convert date to datetime format
+df["Date"] = pd.to_datetime(df["Date"])
+
+# 8. Export cleaned data
 df.to_csv("data/SMAP/SMAPDataCleaned.csv", index=False)
 print("df exported to data/SMAP/SMAPDataCleaned.csv!")
