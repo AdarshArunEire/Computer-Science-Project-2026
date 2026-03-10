@@ -61,3 +61,6 @@ Some notes to self i might need later:
     decided on dropping ml.... picking up tmrw 
 
 problem: battery pack wasnt enough for gpps... fixed
+
+GPS HUGE ISSUE FIXED NOW
+radio max char was 19, srial max char is laso 19. read character by character, then split into 19 for radio, reconstructed in python. isues where the start and end headers not appearing due to buufer limits, and other values writing at the same time. now all thats left is to parse reconstructed gps lines and put al back into working... datalogger got reset..
