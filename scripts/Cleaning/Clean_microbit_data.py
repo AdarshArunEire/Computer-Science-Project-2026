@@ -1,74 +1,151 @@
 import pandas as pd
-#print(raw_df.to_string())
+import requests
+from datetime import datetime, timedelta
+
+
+def fetch_weather(lat, lon, dates):
+    """Fetch hourly humidity and wind speed from Open-Meteo for a set of dates.
+    Tries the forecast endpoint first (covers today), falls back to the archive
+    for dates older than 5 days. Returns a DataFrame indexed by datetime."""
+
+    # Split dates into recent (forecast) and old (archive)
+    cutoff = datetime.now().date() - timedelta(days=5)
+    recent = [d for d in dates if d >= cutoff]
+    old    = [d for d in dates if d < cutoff]
+
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": "relative_humidity_2m,wind_speed_10m",
+        "timezone": "Europe/Dublin",
+        "wind_speed_unit": "ms",
+    }
+
+    frames = []
+
+    # Forecast endpoint covers roughly -2 to +14 days from today
+    if recent:
+        params["start_date"] = min(recent).isoformat()
+        params["end_date"]   = max(recent).isoformat()
+        try:
+            r = requests.get("https://api.open-meteo.com/v1/forecast", params=params, timeout=10)
+            r.raise_for_status()
+            frames.append(_parse_meteo_response(r.json()))
+        except Exception as e:
+            print(f"Warning: forecast API call failed ({e}). Humidity/Wind will be NaN for recent dates.")
+
+    # Archive endpoint covers up to ~5 days ago
+    if old:
+        params["start_date"] = min(old).isoformat()
+        params["end_date"]   = max(old).isoformat()
+        try:
+            r = requests.get("https://archive-api.open-meteo.com/v1/archive", params=params, timeout=10)
+            r.raise_for_status()
+            frames.append(_parse_meteo_response(r.json()))
+        except Exception as e:
+            print(f"Warning: archive API call failed ({e}). Humidity/Wind will be NaN for old dates.")
+
+    if not frames:
+        return pd.DataFrame(columns=["Humidity", "Wind_Speed"])
+
+    return pd.concat(frames)
+
+
+def _parse_meteo_response(data):
+    """Parse raw Open-Meteo JSON into a DataFrame indexed by hour."""
+    hourly = data["hourly"]
+    df = pd.DataFrame({
+        "datetime": pd.to_datetime(hourly["time"]),
+        "Humidity":   hourly["relative_humidity_2m"],
+        "Wind_Speed": hourly["wind_speed_10m"],
+    })
+    return df.set_index("datetime")
+
 
 def MicrobitDataCleaner(raw_df):
-    # 2. Dropping duplicate rows and resetting index
+
+    # 1. Drop duplicates and rename columns (Light removed, GPS added)
     df = raw_df.drop_duplicates().reset_index(drop=True)
-    df.columns = ["Time", "Temperature", "Light", "Soil_Moisture"]
-    #print(df.to_string())
+    df.columns = ["Time", "Temperature", "Soil_Moisture", "Latitude", "Longitude"]
 
-    # 3. Drop index column
-    df = df.reset_index(drop=True)
+    # 2. Parse Time column to datetime
+    df["Time"] = pd.to_datetime(df["Time"])
 
-    # 4. Replacing Rows where Temp greater than 100°c with NaN
-    for i, temp in df["Temperature"].items():
-        if temp > 100:
-            df.loc[i, "Temperature"] = float("nan")
-    #print(df.to_string())
+    # 3. Parse GPS coordinates to numeric — malformed strings become NaN
+    df["Latitude"]  = pd.to_numeric(df["Latitude"],  errors="coerce")
+    df["Longitude"] = pd.to_numeric(df["Longitude"], errors="coerce")
 
-    # 5. Replacing missing temperature values with an estimate value of the closest 2
-    while df["Temperature"].isna().any() is True:
-        for i, temp in df["Temperature"].items():
-            if pd.isna(temp):
-                if i == 0 or df["Temperature"].iloc[i - 1].isna():
-                    next_val = df["Temperature"].iloc[i + 1]
-                    prev_val = next_val
-                elif i == len(df["Temperature"]) - 1 or df["Temperature"].iloc[i + 1].isna():
-                    prev_val = df["Temperature"].iloc[i - 1]
-                    next_val = prev_val
-                else:
-                    prev_val = df["Temperature"].iloc[i - 1]
-                    next_val = df["Temperature"].iloc[i + 1]
-                if not pd.isna(prev_val) and not pd.isna(next_val):
-                    df.loc[i, "Temperature"] = (prev_val + next_val) / 2
-    # print(df.to_string())
+    # 4. Sanity-check coordinates against Ireland bounding box
+    #    Anything outside this survived parser corruption — null before spike check
+    valid_lat = df["Latitude"].between(51.0, 56.0)
+    valid_lon = df["Longitude"].between(-10.5, -5.5)
+    invalid = ~(valid_lat & valid_lon) & (df["Latitude"].notna() | df["Longitude"].notna())
+    if invalid.any():
+        print(f"Warning: {invalid.sum()} rows have coordinates outside Ireland bounds — setting to NaN")
+        df.loc[invalid, ["Latitude", "Longitude"]] = float("nan")
 
-    # 6. Replacing Rows where Soil Moisture outside of analog range
-    max_moisture = (3/3.3 * 1023) + 10 # max 3V from sensor of max 3.3V; which is mapped to 1023, +10 for error
-    for i, moisture in df["Soil_Moisture"].items():
-        if moisture > max_moisture:
-            print(f"At index {i}, value of {moisture} is outside of typical range")
-            df.loc[i, "Soil_Moisture"] = float("nan")
-    #print(df.to_string())
+    # 4a. Spike detection for GPS — GPS should be very stable between readings
+    #     (walking pace ~0.00001 degrees/second). A jump of more than 0.001 degrees
+    #     (~110m) from the local median is almost certainly a parser glitch, not movement
+    for col in ["Latitude", "Longitude"]:
+        rolling_med = df[col].rolling(window=5, center=True, min_periods=1).median()
+        spikes = (df[col] - rolling_med).abs() > 0.001
+        if spikes.any():
+            print(f"Warning: {spikes.sum()} {col} spike(s) detected — setting to NaN for forward-fill")
+            df.loc[spikes, col] = float("nan")
 
-    # 7. Replacing missing Moisture values with an estimate value of the closest 2
-    while df["Soil_Moisture"].isna().any() is True:
-        for i, temp in df["Soil_Moisture"].items():
-            if pd.isna(temp):
-                if i == 0 or df["Soil_Moisture"].iloc[i - 1].isna():
-                    next_val = df["Soil_Moisture"].iloc[i + 1]
-                    prev_val = next_val
-                elif i == len(df["Soil_Moisture"]) - 1 or df["Soil_Moisture"].iloc[i + 1].isna():
-                    prev_val = df["Soil_Moisture"].iloc[i - 1]
-                    next_val = prev_val
-                else:
-                    prev_val = df["Soil_Moisture"].iloc[i - 1]
-                    next_val = df["Soil_Moisture"].iloc[i + 1]
-                if not pd.isna(prev_val) and not pd.isna(next_val):
-                    df.loc[i, "Soil_Moisture"] = (prev_val + next_val) / 2
-    #print(df.to_string())
+    # 4b. Forward-fill then back-fill GPS — ffill carries last known position forward,
+    #     bfill handles rows at the start before any valid GPS fix was received
+    df[["Latitude", "Longitude"]] = df[["Latitude", "Longitude"]].ffill().bfill()
+    df = df.dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
 
-    # 8. Return cleaned df for MAIN pipeline + Export Cleaned Data
+    # 5. Parse temperature to numeric — malformed values become NaN,
+    #    which are then linearly interpolated from neighbouring valid readings.
+    #    Time is never interpolated as timestamps are always reliable.
+    df["Temperature"] = pd.to_numeric(df["Temperature"], errors="coerce")
+    df["Temperature"] = df["Temperature"].interpolate(method="linear").round(1)
+
+    # 6. Parse soil moisture to numeric — same approach as temperature.
+    df["Soil_Moisture"] = pd.to_numeric(df["Soil_Moisture"], errors="coerce")
+    df["Soil_Moisture"] = df["Soil_Moisture"].interpolate(method="linear").round(1)
+
+    # 7. Fetch weather enrichment from Open-Meteo API
+    #    Uses median lat/lon of the session as the location for the API call
+    #    Matches on hour — merges Humidity (%) and Wind_Speed (m/s) onto each row
+    try:
+        med_lat = round(df["Latitude"].median(), 4)
+        med_lon = round(df["Longitude"].median(), 4)
+        unique_dates = df["Time"].dt.date.unique().tolist()
+
+        weather_df = fetch_weather(med_lat, med_lon, unique_dates)
+
+        if not weather_df.empty:
+            # Floor each timestamp to the hour to match Open-Meteo's hourly resolution
+            df["hour"] = df["Time"].dt.floor("h")
+            df = df.merge(weather_df, left_on="hour", right_index=True, how="left")
+            df = df.drop(columns=["hour"])
+            print(f"Weather enrichment complete — {df['Humidity'].notna().sum()} rows matched")
+        else:
+            df["Humidity"]   = float("nan")
+            df["Wind_Speed"] = float("nan")
+            print("Warning: No weather data returned — Humidity and Wind_Speed set to NaN")
+
+    except Exception as e:
+        df["Humidity"]   = float("nan")
+        df["Wind_Speed"] = float("nan")
+        print(f"Warning: Weather enrichment failed ({e}) — Humidity and Wind_Speed set to NaN")
+
+    # 8. Final drop of any remaining NaN rows and reset index
     df = df.dropna().reset_index(drop=True)
-    df.to_csv('data\microbit\MicrobitDataCleaned.csv', index=False)
-    print("df exported to data\microbit\MicrobitDataCleaned.csv!")
+
+    # 9. Export cleaned data and return df for main pipeline
+    df.to_csv('data/microbit/MicrobitDataCleaned.csv', index=False)
+    print("df exported to data/microbit/MicrobitDataCleaned.csv!")
     return df
 
 
-# 9. If file ran directly, This code allows you to select a file to clean
+# 10. If run directly, prompt for filepath, validate, and clean
 if __name__ == "__main__":
-
-    # 10. Ensure raw file exists and is not empty before cleaning
     while True:
         filepath = input("Enter the filepath of file to be cleaned (use forward slashes),\n"
                          "click enter to use the default (data/microbit/MicrobitDataUncleaned.csv): ")
