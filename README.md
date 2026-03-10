@@ -59,3 +59,5 @@ Some notes to self i might need later:
     https://cwfis.cfs.nrcan.gc.ca/background/summary/fwi is model 1. Model 2 will be a ml model that predicts my calculated fwi index, using only mositure temp humidiy columns. that way, this model can be applied to the microbit sensor data. i dont wanna use senro and simulated mixed, as i belive muicrobit should be a standalone functionality that works without external data.
 
     decided on dropping ml.... picking up tmrw 
+
+problem: battery pack wasnt enough for gpps... fixed
