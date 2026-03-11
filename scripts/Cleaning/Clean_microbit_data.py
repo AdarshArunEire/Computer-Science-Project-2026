@@ -64,12 +64,14 @@ def _parse_meteo_response(data):
 
 def MicrobitDataCleaner(raw_df):
 
-    # 1. Drop duplicates and rename columns (Light removed, GPS added)
-    df = raw_df.drop_duplicates().reset_index(drop=True)
+    # 1. Set column name
+    df = raw_df.reset_index(drop=True)
     df.columns = ["Time", "Temperature", "Soil_Moisture", "Latitude", "Longitude"]
 
-    # 2. Parse Time column to datetime
+    # 2. Parse Time column to datetime, then remove duplicate times
     df["Time"] = pd.to_datetime(df["Time"])
+    df = df.drop_duplicates(subset="Time").reset_index(drop=True)
+
 
     # 3. Parse GPS coordinates to numeric — malformed strings become NaN
     df["Latitude"]  = pd.to_numeric(df["Latitude"],  errors="coerce")
@@ -94,24 +96,19 @@ def MicrobitDataCleaner(raw_df):
             print(f"Warning: {spikes.sum()} {col} spike(s) detected — setting to NaN for forward-fill")
             df.loc[spikes, col] = float("nan")
 
-    # 4b. Forward-fill then back-fill GPS — ffill carries last known position forward,
-    #     bfill handles rows at the start before any valid GPS fix was received
+    # 4b. Forward-fill then back-fill GPS
     df[["Latitude", "Longitude"]] = df[["Latitude", "Longitude"]].ffill().bfill()
     df = df.dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
 
-    # 5. Parse temperature to numeric — malformed values become NaN,
-    #    which are then linearly interpolated from neighbouring valid readings.
-    #    Time is never interpolated as timestamps are always reliable.
+    # 5. Temperature to numeric
     df["Temperature"] = pd.to_numeric(df["Temperature"], errors="coerce")
     df["Temperature"] = df["Temperature"].interpolate(method="linear").round(1)
 
-    # 6. Parse soil moisture to numeric — same approach as temperature.
+    # 6. Moisture to numeric
     df["Soil_Moisture"] = pd.to_numeric(df["Soil_Moisture"], errors="coerce")
     df["Soil_Moisture"] = df["Soil_Moisture"].interpolate(method="linear").round(1)
 
     # 7. Fetch weather enrichment from Open-Meteo API
-    #    Uses median lat/lon of the session as the location for the API call
-    #    Matches on hour — merges Humidity (%) and Wind_Speed (m/s) onto each row
     try:
         med_lat = round(df["Latitude"].median(), 4)
         med_lon = round(df["Longitude"].median(), 4)
@@ -135,10 +132,13 @@ def MicrobitDataCleaner(raw_df):
         df["Wind_Speed"] = float("nan")
         print(f"Warning: Weather enrichment failed ({e}) — Humidity and Wind_Speed set to NaN")
 
-    # 8. Final drop of any remaining NaN rows and reset index
+    # 8. Sort by datetime
+    df = df.sort_values("Time").reset_index(drop=True)
+    
+    # 9. Final drop of any remaining NaN rows and reset index
     df = df.dropna().reset_index(drop=True)
 
-    # 9. Export cleaned data and return df for main pipeline
+    # 10. Export cleaned data and return df for main pipeline
     df.to_csv('data/microbit/MicrobitDataCleaned.csv', index=False)
     print("df exported to data/microbit/MicrobitDataCleaned.csv!")
     return df
