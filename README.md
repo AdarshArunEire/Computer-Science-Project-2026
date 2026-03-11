@@ -101,3 +101,43 @@ extreme_risk = 0.75
 
 The correlation heatmap and time-series graph showed that soil dryness was dominating both the instant and carry-over parts of the model, while rainfall had too little effect in lowering risk. The model was therefore tuned by slightly reducing soil-related weights, increasing rainfall influence, and reducing memory persistence so that ordinary baseline conditions would not be overstated
 
+version 1 settings
+###############################################################################
+
+# Weights for the different factors
+                 # How much:                            for instant risk:
+w_heat = 0.35    #          current temperature matters 
+w_soil = 0.25    #          dry soil matters right now
+w_air = 0.15     #          dry air matters right now
+w_wind = 0.15    #          wind matters right now
+w_rain = 0.10    #          rain pulls current risk down
+
+                 # How much:                built-up dryness over time:
+d_soil = 0.40    #          dry soil drives
+d_heat = 0.25    #          heat builds 
+d_air = 0.15     #          dry air builds 
+d_rain = 0.20    #          rain reduces 
+
+m_memory = 0.65  # how much the last hour still matters
+m_input = 0.35   # how much this hour feeds into carryover
+
+f_instant = 0.65 # how much current conditions matter in the final risk
+f_memory = 0.35  # how much built-up dryness matters in the final risk
+
+###############################################################################
+
+# Bands for final risk
+moderate_risk = 0.25
+high_risk = 0.5
+extreme_risk = 0.75
+
+###############################################################################
+
+i think the magor issue is the base score itself is at 30, lets offset it keeping ordinary values aka ordinary weather at 0, change:
+    Instead of using:
+    FinalRiskScore = FinalRisk_t * 100
+    use :
+    AdjustedRisk = max(0, FinalRisk_t - 0.30)
+    FinalRiskScore = AdjustedRisk / (1 - 0.30) * 100
+
+Also, lets make final risk scale off and instead of or aka * isntead of +

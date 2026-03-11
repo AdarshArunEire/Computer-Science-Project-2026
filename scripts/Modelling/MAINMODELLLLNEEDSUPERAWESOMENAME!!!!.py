@@ -7,23 +7,23 @@ import seaborn as sns
 
 # Weights for the different factors
                  # How much:                            for instant risk:
-w_heat = 0.30    #          current temperature matters 
-w_soil = 0.35    #          dry soil matters right now
+w_heat = 0.35    #          current temperature matters 
+w_soil = 0.25    #          dry soil matters right now
 w_air = 0.15     #          dry air matters right now
 w_wind = 0.15    #          wind matters right now
-w_rain = 0.05    #          rain pulls current risk down
+w_rain = 0.10    #          rain pulls current risk down
 
                  # How much:                built-up dryness over time:
-d_soil = 0.50    #          dry soil drives
+d_soil = 0.40    #          dry soil drives
 d_heat = 0.25    #          heat builds 
 d_air = 0.15     #          dry air builds 
-d_rain = 0.10    #          rain reduces 
+d_rain = 0.20    #          rain reduces 
 
-m_memory = 0.80  # how much the last hour still matters
-m_input = 0.20   # how much this hour feeds into carryover
+m_memory = 0.65  # how much the last hour still matters
+m_input = 0.35   # how much this hour feeds into carryover
 
-f_instant = 0.55 # how much current conditions matter in the final risk
-f_memory = 0.45  # how much built-up dryness matters in the final risk
+f_instant = 0.65 # how much current conditions matter in the final risk
+f_memory = 0.35  # how much built-up dryness matters in the final risk
 
 ###############################################################################
 
@@ -130,9 +130,14 @@ def model_risk(file_path):
         df.loc[i, "CarryoverRisk"] = CarryoverRisk_t
             
         # 3c. Calculate final risks
-        FinalRisk_t = (f_instant * InstantRisk_t) + (f_memory * CarryoverRisk_t)
+        FinalRisk_t = (f_instant * InstantRisk_t) * (f_memory * CarryoverRisk_t) # * repersents AND, instead of + representing OR
         df.loc[i, "FinalRisk"] = FinalRisk_t
-        df.loc[i, "FinalRiskScore"] = round(FinalRisk_t * 100, 2)
+
+        AdjustedRisk_t = max(0, FinalRisk_t - 0.30) # Offset to allow normal weather to be low
+        FinalRiskScore_t = AdjustedRisk_t / (1 - 0.30) * 100 # Rescale to percent
+        df.loc[i, "FinalRiskScore"] = FinalRiskScore_t
+
+
         if FinalRisk_t >= extreme_risk:
             df.loc[i, "FinalRiskBand"] = "Extreme"
         elif FinalRisk_t >= high_risk:
@@ -174,6 +179,8 @@ def visualise(df):
 
     plt.tight_layout()
     plt.show()
+    
+    return
 
 
 # 5. When file ran directly, run model and prompt for graphs
