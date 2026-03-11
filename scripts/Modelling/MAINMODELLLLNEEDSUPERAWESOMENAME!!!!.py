@@ -25,6 +25,9 @@ m_input = 0.35   # how much this hour feeds into carryover
 f_instant = 0.65 # how much current conditions matter in the final risk
 f_memory = 0.35  # how much built-up dryness matters in the final risk
 
+offset = 0.0     # How much to offset the final risk score to allow for normal weather to be low risk
+risk_ceiling = 0.75 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+
 ###############################################################################
 
 # Bands for final risk
@@ -133,8 +136,8 @@ def model_risk(file_path):
         FinalRisk_t = (f_instant * InstantRisk_t) * (f_memory * CarryoverRisk_t) # * repersents AND, instead of + representing OR
         df.loc[i, "FinalRisk"] = FinalRisk_t
 
-        AdjustedRisk_t = max(0, FinalRisk_t - 0.30) # Offset to allow normal weather to be low
-        FinalRiskScore_t = AdjustedRisk_t / (1 - 0.30) * 100 # Rescale to percent
+        AdjustedRisk_t = max(0, FinalRisk_t + offset) # Offset to allow normal weather to be low
+        FinalRiskScore_t = AdjustedRisk_t / (risk_ceiling + offset) * 100 # Rescale to percent
         df.loc[i, "FinalRiskScore"] = FinalRiskScore_t
 
 
@@ -204,5 +207,3 @@ if __name__ == "__main__":
         elif graph_ans == "n":
             print("Okay goodbye!")
             break
-
-    
