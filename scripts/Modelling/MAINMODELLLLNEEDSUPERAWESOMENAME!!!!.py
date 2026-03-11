@@ -7,16 +7,16 @@ import seaborn as sns
 
 # Weights for the different factors
                  # How much:                            for instant risk:
-w_heat = 0.35    #          current temperature matters 
-w_soil = 0.25    #          dry soil matters right now
-w_air = 0.15     #          dry air matters right now
-w_wind = 0.15    #          wind matters right now
+w_heat = 0.40    #          current temperature matters 
+w_soil = 0.10    #          dry soil matters right now
+w_air = 0.20     #          dry air matters right now
+w_wind = 0.20    #          wind matters right now
 w_rain = 0.10    #          rain pulls current risk down
 
                  # How much:                built-up dryness over time:
-d_soil = 0.40    #          dry soil drives
-d_heat = 0.25    #          heat builds 
-d_air = 0.15     #          dry air builds 
+d_soil = 0.50    #          dry soil drives
+d_heat = 0.20    #          heat builds 
+d_air = 0.10     #          dry air builds 
 d_rain = 0.20    #          rain reduces 
 
 m_memory = 0.65  # how much the last hour still matters
@@ -25,8 +25,8 @@ m_input = 0.35   # how much this hour feeds into carryover
 f_instant = 0.65 # how much current conditions matter in the final risk
 f_memory = 0.35  # how much built-up dryness matters in the final risk
 
-offset = 0.0     # How much to offset the final risk score to allow for normal weather to be low risk
-risk_ceiling = 0.75 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+risk_floor = 0.020   # The minimum final risk score, used to rescale the final risk score to a percentage
+risk_ceiling = 0.060 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
 
 ###############################################################################
 
@@ -136,16 +136,16 @@ def model_risk(file_path):
         FinalRisk_t = (f_instant * InstantRisk_t) * (f_memory * CarryoverRisk_t) # * repersents AND, instead of + representing OR
         df.loc[i, "FinalRisk"] = FinalRisk_t
 
-        AdjustedRisk_t = max(0, FinalRisk_t + offset) # Offset to allow normal weather to be low
-        FinalRiskScore_t = AdjustedRisk_t / (risk_ceiling + offset) * 100 # Rescale to percent
+        AdjustedRisk_t = max(0, FinalRisk_t - risk_floor) # Offset to allow normal weather to be low
+        FinalRiskScore_t = AdjustedRisk_t / (risk_ceiling - risk_floor) * 100 # Rescale to percent
         df.loc[i, "FinalRiskScore"] = FinalRiskScore_t
 
 
-        if FinalRisk_t >= extreme_risk:
+        if FinalRiskScore_t >= extreme_risk:
             df.loc[i, "FinalRiskBand"] = "Extreme"
-        elif FinalRisk_t >= high_risk:
+        elif FinalRiskScore_t >= high_risk:
             df.loc[i, "FinalRiskBand"] = "High"
-        elif FinalRisk_t >= moderate_risk:
+        elif FinalRiskScore_t >= moderate_risk:
             df.loc[i, "FinalRiskBand"] = "Moderate"
         else:
             df.loc[i, "FinalRiskBand"] = "Low"
@@ -157,6 +157,10 @@ def model_risk(file_path):
 
 
 def visualise(df):
+
+    print(df["FinalRisk"].describe())
+    print(df["FinalRiskScore"].describe())
+
     # Set style
     sns.set_style("whitegrid")
 
@@ -207,3 +211,4 @@ if __name__ == "__main__":
         elif graph_ans == "n":
             print("Okay goodbye!")
             break
+

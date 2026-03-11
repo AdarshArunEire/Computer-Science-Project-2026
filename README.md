@@ -139,5 +139,40 @@ i think the magor issue is the base score itself is at 30, lets offset it keepin
     use :
     AdjustedRisk = max(0, FinalRisk_t - 0.30)
     FinalRiskScore = AdjustedRisk / (1 - 0.30) * 100
-
 Also, lets make final risk scale off and instead of or aka * isntead of +
+
+################################################
+    offset (now risk floor) was -0.3, changed to multictive
+################################################
+
+im going to stop pretneding risk scales as a percent, and make it my own abreviated index :D
+looks alot better, added a describe() to figure out risk floor and celing:
+    count    720.000000
+    mean       0.024207
+    std        0.005168
+    min        0.002794
+    25%        0.021740
+    50%        0.024570
+    75%        0.027626
+    max        0.037199
+    Name: FinalRisk, dtype: float64
+    count    720.000000
+    mean       3.227566
+    std        0.689057
+    min        0.372593
+    25%        2.898709
+    50%        3.275969
+    75%        3.683438
+    max        4.959933
+    Name: FinalRiskScore, dtype: float64
+
+from this, we set <0.02 to be negligible risk (lower 25%)
+           we set >0.06 to be MAX risk (will adjust after testing what if scenarios),
+i.e floor = 0.02 and celing = 0.06
+
+i know its a bad habit, but im changin two things at once here....
+going to sperate the two layers, to have the meaning of:
+    InstantRisk = “is the weather helping fire spread / ignite right now?”
+    DrynessInput = “how dry are things becoming overall?”
+
+Version 4 settings:
