@@ -64,3 +64,40 @@ problem: battery pack wasnt enough for gpps... fixed
 
 GPS HUGE ISSUE FIXED NOW
 radio max char was 19, srial max char is laso 19. read character by character, then split into 19 for radio, reconstructed in python. isues where the start and end headers not appearing due to buufer limits, and other values writing at the same time. now all thats left is to parse reconstructed gps lines and put al back into working... datalogger got reset..
+
+
+
+BASE VALUE RESULT WEIGHT SETTINGS:
+###############################################################################
+
+# Weights for the different factors
+                 # How much:                            for instant risk:
+w_heat = 0.30    #          current temperature matters 
+w_soil = 0.35    #          dry soil matters right now
+w_air = 0.15     #          dry air matters right now
+w_wind = 0.15    #          wind matters right now
+w_rain = 0.05    #          rain pulls current risk down
+
+                 # How much:                built-up dryness over time:
+d_soil = 0.50    #          dry soil drives
+d_heat = 0.25    #          heat builds 
+d_air = 0.15     #          dry air builds 
+d_rain = 0.10    #          rain reduces 
+
+m_memory = 0.80  # how much the last hour still matters
+m_input = 0.20   # how much this hour feeds into carryover
+
+f_instant = 0.55 # how much current conditions matter in the final risk
+f_memory = 0.45  # how much built-up dryness matters in the final risk
+
+###############################################################################
+
+# Bands for final risk
+moderate_risk = 0.25
+high_risk = 0.5
+extreme_risk = 0.75
+
+###############################################################################
+
+The correlation heatmap and time-series graph showed that soil dryness was dominating both the instant and carry-over parts of the model, while rainfall had too little effect in lowering risk. The model was therefore tuned by slightly reducing soil-related weights, increasing rainfall influence, and reducing memory persistence so that ordinary baseline conditions would not be overstated
+
