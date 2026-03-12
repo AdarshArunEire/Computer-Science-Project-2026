@@ -25,15 +25,15 @@ m_input = 0.25   # how much this hour feeds into carryover
 f_instant = 0.65 # how much current conditions matter in the final risk
 f_memory = 0.35  # how much built-up dryness matters in the final risk
 
-risk_floor = 0.000   # The minimum final risk score, used to rescale the final risk score to a percentage
-risk_ceiling = 0.090 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+risk_floor = 0.0125   # The minimum final risk score, used to rescale the final risk score to a percentage
+risk_ceiling = 0.1100 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
 
 ###############################################################################
 
 # Bands for final risk
-moderate_risk = 0.25 * risk_ceiling
-high_risk = 0.5 * risk_ceiling
-extreme_risk = 0.75 * risk_ceiling
+moderate_risk = 25
+high_risk = 50
+extreme_risk = 75
 
 ###############################################################################
 
@@ -167,11 +167,24 @@ def visualise(df):
     # Create figure and axes
     fig, axes = plt.subplots(3, 1, figsize=(12, 18))
 
-    # Plot 1: Line plot of final risk score over time
-    sns.lineplot(x="Time", y="FinalRiskScore", data=df, ax=axes[0], marker="o")
-    axes[0].set_title("Final Risk Score Over Time")
+    # Plot 1: Line plot of final risk over time
+    sns.lineplot(x="Time", y="FinalRiskScore", data=df, ax=axes[0], marker="")
+
+    axes[0].set_title("Final Risk Over Time")
     axes[0].set_xlabel("Time")
-    axes[0].set_ylabel("Final Risk Score (%)")
+    axes[0].set_ylabel("Final Risk (%)")
+    axes[0].set_ylim(0, 100)
+
+    # Threshold lines
+    axes[0].axhline(moderate_risk, color="orange", linestyle="--", linewidth=1)
+    axes[0].axhline(high_risk, color="red", linestyle="--", linewidth=1)
+    axes[0].axhline(extreme_risk, color="purple", linestyle="--", linewidth=1)
+
+    # Background bands
+    axes[0].axhspan(0, moderate_risk, alpha=0.08, color="green")
+    axes[0].axhspan(moderate_risk, high_risk, alpha=0.08, color="yellow")
+    axes[0].axhspan(high_risk, extreme_risk, alpha=0.08, color="orange")
+    axes[0].axhspan(extreme_risk, 100, alpha=0.08, color="red")
 
     # Plot 2: Bar plot of count of each risk band
     sns.countplot(x="FinalRiskBand", data=df, order=["Low", "Moderate", "High", "Extreme"], ax=axes[1])
