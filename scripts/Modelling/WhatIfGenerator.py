@@ -8,7 +8,7 @@ def generate_temperature_values(hour, min_temp, max_temp):
     c = (2 * np.pi) / 24          # Frequency (every 24h)
     x = hour - 15                 # Shift graph's peak to 3pm (hour 15)
 
-    return a + b * np.cos(c * x) + np.random.normal(0, 5) # Add some noise for realism
+    return a + b * np.cos(c * x) + np.random.normal(0, 100) # Add some noise
 
 # Generate soil moisture values based on rainfall and drying factors
 def update_soil_moisture(previous_moisture, rain, temp, wind):
