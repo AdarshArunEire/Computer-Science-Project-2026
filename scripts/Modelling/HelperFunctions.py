@@ -38,9 +38,6 @@ def normalise(value, min_val, max_val):
 # Plot graph from df output of model
 def visualise(df, moderate_risk, high_risk, extreme_risk):
 
-    print(df["FinalRisk"].describe())
-    print(df["FinalRiskScore"].describe())
-
     # Set style
     sns.set_style("whitegrid")
 

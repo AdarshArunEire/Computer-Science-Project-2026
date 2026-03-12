@@ -126,8 +126,7 @@ def model_risk(data_input):
             df.loc[i, "FinalRiskBand"] = "Low"
 
     # 4. Export the final dataset
-    df.to_csv("data/MicrobitDataRiskModel.csv", index=False)
-    print(f"Risk model complete, {len(df)} rows at data/MicrobitDataRiskModel.csv")
+    print(f"Risk model complete, {len(df)} rows")
     return df
 
 
@@ -140,6 +139,12 @@ if __name__ == "__main__":
             file_path = "data/MicrobitDataHourlyClean.csv"
         try:
             df = model_risk(file_path)
+            df.to_csv("data/MicrobitDataRiskModel.csv", index=False)
+            print("csv exported to path data/MicrobitDataRiskModel.csv")
             break
         except FileNotFoundError:
             print(f"File not found at {file_path}, please try again.")
+        except KeyError:
+            print("This data isnt hourly")
+            
+
