@@ -168,11 +168,49 @@ looks alot better, added a describe() to figure out risk floor and celing:
 
 from this, we set <0.02 to be negligible risk (lower 25%)
            we set >0.06 to be MAX risk (will adjust after testing what if scenarios),
-i.e floor = 0.02 and celing = 0.06
+i.e floor = 0.02 and celing = 0.06 (thsi was changed because i codlnt see the full graph)
 
-i know its a bad habit, but im changin two things at once here....
+i know its a bad habit, but im changin two things at once here.... (had to undo the other step..)
 going to sperate the two layers, to have the meaning of:
     InstantRisk = “is the weather helping fire spread / ignite right now?”
     DrynessInput = “how dry are things becoming overall?”
 
 Version 4 settings:
+###############################################################################
+
+# Weights for the different factors
+                 # How much:                            for instant risk:
+w_heat = 0.40    #          current temperature matters 
+w_soil = 0.10    #          dry soil matters right now
+w_air = 0.20     #          dry air matters right now
+w_wind = 0.20    #          wind matters right now
+w_rain = 0.10    #          rain pulls current risk down
+
+                 # How much:                built-up dryness over time:
+d_soil = 0.50    #          dry soil drives
+d_heat = 0.20    #          heat builds 
+d_air = 0.10     #          dry air builds 
+d_rain = 0.20    #          rain reduces 
+
+m_memory = 0.65  # how much the last hour still matters
+m_input = 0.35   # how much this hour feeds into carryover
+
+f_instant = 0.65 # how much current conditions matter in the final risk
+f_memory = 0.35  # how much built-up dryness matters in the final risk
+
+risk_floor = 0.000   # The minimum final risk score, used to rescale the final risk score to a percentage
+risk_ceiling = 0.01 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+
+###############################################################################
+
+# Bands for final risk
+moderate_risk = 0.25
+high_risk = 0.5
+extreme_risk = 0.75
+
+###############################################################################
+
+
+sooooo.... it looks very noisy now. diganosing
+i suspect wind is playing too big a role its the most noisy in the hourly, 
+also will increase memory. also plot the whole 0-100 score so i can see it relative to the rest

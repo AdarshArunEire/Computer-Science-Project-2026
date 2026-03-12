@@ -19,21 +19,21 @@ d_heat = 0.20    #          heat builds
 d_air = 0.10     #          dry air builds 
 d_rain = 0.20    #          rain reduces 
 
-m_memory = 0.65  # how much the last hour still matters
-m_input = 0.35   # how much this hour feeds into carryover
+m_memory = 0.75  # how much the last hour still matters
+m_input = 0.25   # how much this hour feeds into carryover
 
 f_instant = 0.65 # how much current conditions matter in the final risk
 f_memory = 0.35  # how much built-up dryness matters in the final risk
 
-risk_floor = 0.020   # The minimum final risk score, used to rescale the final risk score to a percentage
-risk_ceiling = 0.060 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+risk_floor = 0.000   # The minimum final risk score, used to rescale the final risk score to a percentage
+risk_ceiling = 0.090 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
 
 ###############################################################################
 
 # Bands for final risk
-moderate_risk = 0.25
-high_risk = 0.5
-extreme_risk = 0.75
+moderate_risk = 0.25 * risk_ceiling
+high_risk = 0.5 * risk_ceiling
+extreme_risk = 0.75 * risk_ceiling
 
 ###############################################################################
 
