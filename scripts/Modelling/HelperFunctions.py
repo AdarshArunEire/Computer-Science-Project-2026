@@ -45,7 +45,7 @@ def visualise(df, moderate_risk, high_risk, extreme_risk):
     fig, axes = plt.subplots(3, 1, figsize=(12, 18))
 
     # Plot 1: Line plot of final risk over time
-    sns.lineplot(x="Time", y="FinalRiskScore", data=df, ax=axes[0], marker="")
+    sns.lineplot(x="Time", y="FinalWildfireRiskIndex", data=df, ax=axes[0], marker="")
 
     axes[0].set_title("Final Risk Over Time")
     axes[0].set_xlabel("Time")
@@ -64,13 +64,13 @@ def visualise(df, moderate_risk, high_risk, extreme_risk):
     axes[0].axhspan(extreme_risk, 100, alpha=0.08, color="red")
 
     # Plot 2: Bar plot of count of each risk band
-    sns.countplot(x="FinalRiskBand", data=df, order=["Low", "Moderate", "High", "Extreme"], ax=axes[1])
+    sns.countplot(x="FinalWildfireRiskBand", data=df, order=["Low", "Moderate", "High", "Extreme"], ax=axes[1])
     axes[1].set_title("Count of Each Final Risk Band")
     axes[1].set_xlabel("Final Risk Band")
     axes[1].set_ylabel("Count")
 
     # Plot 3: Heatmap of correlation between variables
-    corr = df[["Heat", "DrySoil", "DryAir", "Wind", "RainRelief", "InstantRisk", "DrynessInput", "CarryoverRisk", "FinalRisk"]].corr()
+    corr = df[["Heat", "DrySoil", "DryAir", "Wind", "RainRelief", "InstantRisk", "DrynessInput", "CarryoverRisk", "CombinedRisk"]].corr()
     sns.heatmap(corr, annot=True, cmap="coolwarm", ax=axes[2])
     axes[2].set_title("Correlation Heatmap")
 

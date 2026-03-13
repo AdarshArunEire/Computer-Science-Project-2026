@@ -135,10 +135,10 @@ extreme_risk = 0.75
 
 i think the magor issue is the base score itself is at 30, lets offset it keeping ordinary values aka ordinary weather at 0, change:
     Instead of using:
-    FinalRiskScore = FinalRisk_t * 100
+    FinalWildfireRiskIndex = FinalRisk_t * 100
     use :
     AdjustedRisk = max(0, FinalRisk_t - 0.30)
-    FinalRiskScore = AdjustedRisk / (1 - 0.30) * 100
+    FinalWildfireRiskIndex = AdjustedRisk / (1 - 0.30) * 100
 Also, lets make final risk scale off and instead of or aka * isntead of +
 
 ################################################
@@ -155,7 +155,7 @@ looks alot better, added a describe() to figure out risk floor and celing:
     50%        0.024570
     75%        0.027626
     max        0.037199
-    Name: FinalRisk, dtype: float64
+    Name: CombinedRisk, dtype: float64
     count    720.000000
     mean       3.227566
     std        0.689057
@@ -164,7 +164,7 @@ looks alot better, added a describe() to figure out risk floor and celing:
     50%        3.275969
     75%        3.683438
     max        4.959933
-    Name: FinalRiskScore, dtype: float64
+    Name: FinalWildfireRiskIndex, dtype: float64
 
 from this, we set <0.02 to be negligible risk (lower 25%)
            we set >0.06 to be MAX risk (will adjust after testing what if scenarios),

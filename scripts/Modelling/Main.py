@@ -1,4 +1,4 @@
-from FireModel import model_risk, get_risk_thresholds
+from FireModel import dynamic_wildfire_risk_model, get_risk_thresholds
 from HelperFunctions import visualise, improved_input
 from WhatIfGenerator import dryspell_scenario, extreme_scenario, custom_scenario
 
@@ -27,7 +27,7 @@ while True:
             file_path = "data/MicrobitDataHourlyClean.csv"
 
         # 2.b Run model and export
-        df = model_risk(file_path)
+        df = dynamic_wildfire_risk_model(file_path)
         export_path = "data/MicrobitDataRiskModel.csv"
         df.to_csv(export_path, index=False)
         print(f"CSV exported to {export_path}")
@@ -74,7 +74,7 @@ while True:
             print("Running custom simulation")
 
         # 3.b Run model and export
-        df = model_risk(scenario_df)
+        df = dynamic_wildfire_risk_model(scenario_df)
         df.to_csv(export_path, index=False)
         print(f"CSV exported to {export_path}")
 

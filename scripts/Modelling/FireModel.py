@@ -29,10 +29,10 @@ risk_ceiling = 0.1100 # The final risk score that corresponds to 100% risk, used
 
 ###############################################################################
 
-# Bands for final risk
-moderate_risk = 25
-high_risk = 50
-extreme_risk = 75
+# Bands for final wildfire risk index
+moderate_risk = 5
+high_risk = 10
+extreme_risk = 15
 
 ###############################################################################
 
@@ -41,7 +41,7 @@ def get_risk_thresholds():
     return moderate_risk, high_risk, extreme_risk
 
 
-def model_risk(data_input):
+def dynamic_wildfire_risk_model(data_input):
 
 # 1. Load the dataset adapting to either df or filepath input, intialise output df
     if isinstance(data_input, pd.DataFrame):
@@ -50,9 +50,9 @@ def model_risk(data_input):
         data_df = pd.read_csv(data_input)
 
     df = pd.DataFrame(columns=
-                ["Time", "Heat", "DrySoil", "DryAir", "Wind", "RainRelief", # Enviromental variables
-                "InstantRisk", "DrynessInput", "CarryoverRisk",            # Sub Risk scores
-                    "FinalRisk", "FinalRiskScore", "FinalRiskBand"])         # Final Risk
+                ["Time", "Heat", "DrySoil", "DryAir", "Wind", "RainRelief",             # Enviromental variables
+                "InstantRisk", "DrynessInput", "CarryoverRisk",                         # Sub Risk scores
+                    "CombinedRisk", "FinalWildfireRiskIndex", "FinalWildfireRiskBand"]) # Final Risk scores
 
     # 2. Iterate through each row of the DataFrame,
     for i in range(len(data_df)):
@@ -109,21 +109,21 @@ def model_risk(data_input):
             
         # 3c. Calculate final risks
         FinalRisk_t = (f_instant * InstantRisk_t) * (f_memory * CarryoverRisk_t) # * repersents AND, instead of + representing OR
-        df.loc[i, "FinalRisk"] = FinalRisk_t
+        df.loc[i, "CombinedRisk"] = FinalRisk_t
 
         AdjustedRisk_t = max(0, FinalRisk_t - risk_floor) # Offset to allow normal weather to be low
-        FinalRiskScore_t = AdjustedRisk_t / (risk_ceiling - risk_floor) * 100 # Rescale to percent
-        df.loc[i, "FinalRiskScore"] = FinalRiskScore_t
+        FinalRiskScore_t = AdjustedRisk_t / (risk_ceiling - risk_floor) * 20 # Rescale to index
+        df.loc[i, "FinalWildfireRiskIndex"] = FinalRiskScore_t
 
 
         if FinalRiskScore_t >= extreme_risk:
-            df.loc[i, "FinalRiskBand"] = "Extreme"
+            df.loc[i, "FinalWildfireRiskBand"] = "Extreme"
         elif FinalRiskScore_t >= high_risk:
-            df.loc[i, "FinalRiskBand"] = "High"
+            df.loc[i, "FinalWildfireRiskBand"] = "High"
         elif FinalRiskScore_t >= moderate_risk:
-            df.loc[i, "FinalRiskBand"] = "Moderate"
+            df.loc[i, "FinalWildfireRiskBand"] = "Moderate"
         else:
-            df.loc[i, "FinalRiskBand"] = "Low"
+            df.loc[i, "FinalWildfireRiskBand"] = "Low"
 
     # 4. Export the final dataset
     print(f"Risk model complete, {len(df)} rows")
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         if file_path == "":
             file_path = "data/MicrobitDataHourlyClean.csv"
         try:
-            df = model_risk(file_path)
+            df = dynamic_wildfire_risk_model(file_path)
             df.to_csv("data/MicrobitDataRiskModel.csv", index=False)
             print("csv exported to path data/MicrobitDataRiskModel.csv")
             break
