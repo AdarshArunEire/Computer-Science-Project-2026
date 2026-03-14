@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<head>
+  
+  <title>Leaving Cert Computer Science - Forest Fire Risk Level - Create</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>Leaving Cert Computer Science</h1>
+    <h2>Forest Fire Risk Level</h2>
+    <hr />
+    <nav>
+      <a href="index.html">Meeting the Brief</a>
+      <a href="investigate.html">Investigate</a>
+      <a href="plan-and-design.html">Plan and Design</a>
+      <a href="create.html">Create</a>
+      <a href="evaluate.html">Evaluate</a>
+    </nav>
+  </header>
+
+  <main>
+    <h3>Index:</h3>
+    <nav class="sub-nav">
+      <a href="#key-milestones">1. Key Milestones</a>
+      <a href="#description-of-the-model">2. Description of the Model</a>
+      <a href="#testing">3. Testing</a>
+      <a href="#problems-encountered-during-create-stage">4. Problems Encountered During Create Stage</a>
+    </nav>
+
+    <section id="create">
+      <h3>Create</h3>
+      <hr />
+
+      <h4 id="key-milestones">Key Milestones:</h4>
+
+      <p><strong>Milestone 1:</strong> An early milestone was getting the Micro:bit data logging system working so that live sensor values could be collected instead of only using online data. This made the project a real embedded system and produced the raw CSV data later used in Python.</p>
+      <figure>
+        <img src="Figures/Firstrawmicrobitdata.png" alt="First few rows of uncleaned logged Micro:bit data" width="400">
+        <figcaption>Early stage of the project where live sensor values were first collected and logged.</figcaption>
+      </figure>
+
+      <p><strong>Milestone 2:</strong> The next major milestone was solving the GPS and radio transmission issue. GPS data had to be split into smaller chunks, transmitted, rebuilt, and then parsed correctly. Fixing this made the logging system more reliable and made it possible to extract latitude and longitude for later weather retrieval.</p>
+      <figure>
+        <img src="Figures/Firstrawgpsmicrobitdata.png" alt="First few rows of uncleaned logged Micro:bit data with GPS data" width="800">
+        <figcaption>Lines of latitude and longitude data after the GPS got a fix, following the solution to the buffer and character-limit problem.</figcaption>
+      </figure>
+
+      <p><strong>Milestone 3:</strong> After that, I built the cleaning pipeline. The raw data was not ready for modelling directly, so I cleaned it, removed duplicates, handled missing values, grouped it into hourly data, and added matching hourly Open-Meteo data.</p>
+      <figure>
+        <img src="Figures/RawAlllogsvscleandaily.png" alt="Raw logged data compared with cleaned hourly data" width="800">
+        <figcaption>Raw logged data compared with the cleaned and hourly aggregated dataset.</figcaption>
+      </figure>
+
+      <p><strong>Milestone 4:</strong> A major modelling milestone was building and tuning the final wildfire risk model. I adjusted the model several times so that ordinary conditions did not start too high and the dry spell and extreme scenarios were separated more clearly.</p>
+      <figure>
+        <img src="Figures/sesnordataovertimerisk.png" alt="Sensor data used to model wildfire risk over time" width="800">
+        <figcaption>Development and tuning of the wildfire risk model.</figcaption>
+      </figure>
+
+      <p><strong>Milestone 5:</strong> The final major milestone was adding the what-if scenarios. I created a dry spell scenario and an extreme weather scenario so that the same model could be tested under more dangerous conditions over time.</p>
+      <figure>
+        <img src="Figures/AR2VisualisedDrySpell.png" alt="Dry spell scenario wildfire risk over time" width="800">
+        <img src="Figures/AR2VisualisedExtremeHeatandWind.png" alt="Extreme weather scenario wildfire risk over time" width="800">
+        <figcaption>Final scenario testing showing how wildfire risk changes under different conditions.</figcaption>
+      </figure>
+
+      <h4 id="description-of-the-model">Description of the Model:</h4>
+      <p>The model predicts wildfire risk from environmental conditions. It is designed to answer two questions: how dangerous are the current conditions, and has dryness been building up over time?</p>
+      <p>The model sits at the end of the project pipeline. Temperature and soil moisture come from the logged project data, while humidity, wind speed, and rainfall come from Open-Meteo using GPS-derived latitude and longitude. These inputs are combined to make the wildfire-risk estimate more realistic.</p>
+      <p>Before the inputs are combined, they are normalised so that values on different scales can be compared more fairly. Some of these are then inverted into risk effects, for example lower soil moisture or lower humidity contributing more to risk.</p>
+
+      <figure>
+        <img src="Figures/ModelNormalise()block.png" alt="Snippet of normalise() function in HelperFunctions.py" width="800">
+        <figcaption>Helper function normalise() used to convert raw values into comparable risk effects.</figcaption>
+      </figure>
+
+      <p>The model first calculates <em>InstantRisk</em>, which represents how much the current conditions help fire right now. It then calculates <em>DrynessInput</em> and uses this to update <em>CarryoverRisk</em>, which gives the model memory so that repeated dry conditions can build risk over time. These are then combined, scaled into the <em>FinalWildfireRiskIndex</em>, and converted into the categories Low, Moderate, High, or Extreme.</p>
+      <p>The overall structure of the model was influenced by wildfire danger systems like EFFIS <a href="investigate.html#bibliography">[4]</a>, where different environmental conditions are combined into sub-indices and then into one final fire-danger output. I then adjusted the weights, thresholds, and scaling values through repeated testing on my own datasets from the what-if simulations, so that ordinary conditions did not start too high, worsening conditions pushed the risk up more clearly, and the dry spell and extreme scenarios were separated more properly.</p>
+
+      <figure>
+        <img src="Figures/ModelMaincalcblock.png" alt="Snippet of main calculation stages in FireModel.py" width="800">
+        <figcaption>Main calculation stage of the model, where current conditions and carryover dryness are combined into a final wildfire-risk output.</figcaption>
+      </figure>
+
+      <h4 id="testing">Testing During Development:</h4>
+      <p>I used unit testing and integration testing during development to check that key parts of the model were working correctly. I focused on functions that directly affected the wildfire risk calculation and the what-if scenarios.</p>
+
+      <p><strong>Test 1 - normalise() function:</strong> This test checked that the normalise() function scaled input values correctly in a standard case. This was important because the model depends on correctly scaled values before combining them.</p>
+      <figure>
+        <img src="Figures/test1.png" alt="Code to carry out test 1 in test.py" width="800">
+        <figcaption>Unit test used to check that the normalise() function scales input values correctly.</figcaption>
+      </figure>
+      <figure>
+        <img src="Figures/test1result1.png" alt="Terminal output of test 1 in test.py" width="800">
+        <figcaption>Output of the normalise() unit test showing the expected and actual values matched.</figcaption>
+      </figure>
+
+      <p><strong>Test 2 - update_soil_moisture() function:</strong> This test checked the soil moisture update function in both a normal case and a boundary case. This was important because the what-if scenarios rely on soil moisture changing realistically but still staying within valid limits.</p>
+      <figure>
+        <img src="Figures/test2.png" alt="Code to carry out test 2 in test.py" width="800">
+        <figcaption>Unit test used to check the soil moisture update function under normal and boundary conditions.</figcaption>
+      </figure>
+      <figure>
+        <img src="Figures/test2result12.png" alt="Terminal output of test 2 in test.py" width="800">
+        <figcaption>Output of the soil moisture unit test showing that the expected and actual values matched.</figcaption>
+      </figure>
+
+      <p><strong>Test 3 - integration test:</strong> This test checked that a generated scenario dataset could be passed into the wildfire risk model and produce a valid result. This was useful because it tested two parts of the project working together rather than only one function on its own.</p>
+      <figure>
+        <img src="Figures/test3.png" alt="Code to carry out test 3 in test.py" width="800">
+        <figcaption>Integration test used to check that scenario generation and the wildfire-risk model worked correctly together.</figcaption>
+      </figure>
+      <figure>
+        <img src="Figures/test3result123.png" alt="Terminal output of test 3 in test.py" width="800">
+        <figcaption>Output of the integration test showing that the scenario and model pipeline worked successfully.</figcaption>
+      </figure>
+
+      <h4>Summary Test Table:</h4>
+      <table>
+        <tr>
+          <th>Test No.</th>
+          <th>Description</th>
+          <th>Test Data</th>
+          <th>Expected Result</th>
+          <th>Actual Result</th>
+          <th>Pass/Fail</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Check that normalise() scales a standard value correctly.</td>
+          <td>normalise(25, 10, 40)</td>
+          <td>0.5</td>
+          <td>0.5</td>
+          <td>Pass</td>
+        </tr>
+        <tr>
+          <td>2.1</td>
+          <td>Check that update_soil_moisture() works in a standard case.</td>
+          <td>update_soil_moisture(700, 0, 20, 5)</td>
+          <td>695.8</td>
+          <td>695.8</td>
+          <td>Pass</td>
+        </tr>
+        <tr>
+          <td>2.2</td>
+          <td>Check that update_soil_moisture() stays within the maximum boundary.</td>
+          <td>update_soil_moisture(790, 2, 10, 0)</td>
+          <td>800.0</td>
+          <td>800.0</td>
+          <td>Pass</td>
+        </tr>
+        <tr>
+          <td>3.1</td>
+          <td>Check that the generated extreme scenario keeps the correct number of hourly rows after passing through the wildfire model.</td>
+          <td>extreme_scenario() passed into dynamic_wildfire_risk_model()</td>
+          <td>336 rows</td>
+          <td>336 rows</td>
+          <td>Pass</td>
+        </tr>
+        <tr>
+          <td>3.2</td>
+          <td>Check that the final model output contains no missing values.</td>
+          <td>Output dataframe from dynamic_wildfire_risk_model(extreme_scenario())</td>
+          <td>No NaN values</td>
+          <td>No NaN values found</td>
+          <td>Pass</td>
+        </tr>
+        <tr>
+          <td>3.3</td>
+          <td>Check that the extreme scenario produces at least one High or Extreme wildfire-risk row.</td>
+          <td>Output dataframe from dynamic_wildfire_risk_model(extreme_scenario())</td>
+          <td>At least one High or Extreme row</td>
+          <td>Yes - at least one High or Extreme row produced</td>
+          <td>Pass</td>
+        </tr>
+      </table>
+
+      <h4 id="problems-encountered-during-create-stage">Problems Encountered During Create Stage:</h4>
+      <p><strong>Problem 1:</strong> One of the main problems I encountered was transmitting GPS data reliably between the Micro:bit and the computer. The GPS sentence was longer than the radio system could safely handle in one go <a href="investigate.html#bibliography">[6]</a>, and serial communication also had character limits because incoming GPS serial lines could overload the maximum buffer size <a href="investigate.html#bibliography">[7]</a>. Because of this, GPS data was sometimes cut off or mixed with other values by the time it reached Python, which meant the latitude and longitude could not be extracted.</p>
+      <p>To solve this, I changed the sender code so that the GPS sentence was split into smaller chunks before being transmitted. I also added clear start and end markers so that Python could recognise where the GPS data began and ended, rebuild the full sentence safely, and parse the latitude and longitude. I later fixed another issue by resetting the chunk index before each transmission, so that every GPS sentence started sending from the beginning.</p>
+
+      <figure>
+        <img src="Figures/GPSlinesprefix.png" alt="Broken incomplete NMEA lines" width="400">
+        <figcaption>Example of the GPS transmission problem before the fix, where the data was incomplete. The repeated 19-character length helped me identify the buffer and transmission limit issue.</figcaption>
+      </figure>
+      <figure>
+        <img src="Figures/SensorMicrobitCodeBlocks.png" alt="Micro:bit MakeCode for GPS sentence chunking" width="800">
+        <img src="Figures/GPSpyreceiverprefix.png" alt="Python code rebuilding and parsing GPS data" width="800">
+        <figcaption>Code used to read the GPS sentence character by character, group it into chunks of 19, send it by radio, rebuild it safely in Python, and parse the latitude and longitude.</figcaption>
+      </figure>
+
+      <p><strong>Problem 2:</strong> Another real problem came when tuning the wildfire model itself. My earlier versions were technically running, but the outputs were not useful enough yet. At first, the base score was sitting too high, so fairly ordinary conditions were already starting well above where I wanted them. After that, when I changed the settings too aggressively, the model went too far the other way and became too noisy or too sensitive.</p>
+      <p>To diagnose this, I used the time-series graph, the risk-band counts, and the correlation heatmap after each version. These showed that soil dryness was dominating too much of the model, while rainfall was not reducing risk strongly enough. To fix this, I adjusted the weights, the memory terms, and the risk floor and ceiling, and I also made the two parts of the model more clearly separate in meaning: <em>InstantRisk</em> for how much the current conditions help fire right now, and <em>DrynessInput</em> for how much dryness is building up over time.</p>
+      <p>This improved the model because the final version responded more clearly to worsening conditions without making normal conditions look too dangerous. It also made the scenario outputs easier to compare and made the final wildfire risk categories feel more deliberate rather than arbitrary.</p>
+
+      <figure>
+        <img src="Figures/Basevaluesresults.png" alt="Original risk-over-time plot on sensor data before calibration" width="800">
+        <figcaption>Earlier model output before tuning and plotting improvements, showing that the calibration and separation of risk levels were not yet where I wanted them.</figcaption>
+      </figure>
+      <figure>
+        <img src="Figures/FINALVersionModelsettings.png" alt="Final calibrated risk-over-time plot on sensor data" width="800">
+        <figcaption>Later model output after tuning the weights, memory, and scaling values to give clearer and more believable wildfire-risk behaviour for the Irish dataset used here.</figcaption>
+      </figure>
+    </section>
+
+  </main>
+
+</body>
+
+</html>

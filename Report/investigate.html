@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<head>
+  
+  <title>Leaving Cert Computer Science - Forest Fire Risk Level - Investigate</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>Leaving Cert Computer Science</h1>
+    <h2>Forest Fire Risk Level</h2>
+    <hr />
+    <nav>
+      <a href="index.html">Meeting the Brief</a>
+      <a href="investigate.html">Investigate</a>
+      <a href="plan-and-design.html">Plan and Design</a>
+      <a href="create.html">Create</a>
+      <a href="evaluate.html">Evaluate</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="investigate">
+      <h3>Investigate</h3>
+      <hr />
+
+      <h4 id="research-on-the-brief">Research on the Brief:</h4>
+      <p>Forests support the environment by storing carbon, balancing the climate, making cleaner air, and preserving biodiversity. Forest fires are a serious threat because they damage forests and release the carbon that was stored in them. This means that changing conditions over time, such as heat and drought, can make forests more likely to catch fire and allow fires to spread more easily.</p>
+      <p>These changes can be tracked using environmental indicators. Forest fires can be detected in the early stages by gases [2], and risk can also be linked to factors such as soil moisture and temperature [3]. Meteorological factors can also be used to create a numerical indicator of forest fire risk [4]. This makes modelling useful because it allows risk to be estimated before a fire starts and allows changed conditions such as heatwaves or droughts to be tested over time.</p>
+
+      <h4 id="existing-solutions">Existing Solutions:</h4>
+      <p><strong>Bosch early forest fire detection sensors:</strong> The purpose of this system is to detect forest fires early. It uses environmental sensor data, especially gases in the air. The type of system used is early fire detection rather than risk prediction. Its limitation is that it focuses on detecting fires once they begin rather than modelling risk beforehand.</p>
+      <p><strong>Arnowa smart forest monitoring:</strong> The purpose of this system is to monitor forest conditions. It uses environmental data such as soil moisture and temperature. The type of system used is forest monitoring with sensor-based analysis. Its limitation is that monitoring environmental conditions alone does not automatically give a full risk model.</p>
+      <p><strong>Fire Danger Forecast - EFFIS:</strong> The purpose of EFFIS is to forecast wildfire danger over larger areas. It uses meteorological data such as temperature, humidity, wind, and precipitation. The type of model used is a Fire Weather Index style forecasting model. Its limitation is that it is broad and may not fully reflect local conditions.</p>
+
+      <h4 id="research-shaping-the-project-decision">Research Shaping the Project Decision:</h4>
+      <p>The research I conducted led me to use soil moisture and temperature because previous research showed they are useful indicators of forest fire risk. I chose wildfire risk as the risk I would simulate because EFFIS [4] showed how weather-related variables could be combined into one fire-danger output.</p>
+      <p>Because wildfire risk is usually estimated using more variables than I could measure directly, I decided to combine project sensor data with added weather data in the final model. To do this, I planned a clear pipeline: use GPS to obtain latitude and longitude, parse those coordinates in Python, and then use them to request location-based weather data from Open-Meteo.</p>
+      <p>My research also showed that heat and drought increase fire danger over time, so I decided to simulate how wildfire risk changes over time rather than only looking at one isolated reading. I therefore chose a weighted rule-based model, because it could combine several factors into one output while still being clear enough to explain and test.</p>
+
+      <h4 id="final-idea">Final Idea:</h4>
+      <p>My project will use environmental and location data collected by an embedded system together with a computer model to estimate wildfire danger under different conditions. The embedded side will collect local sensor readings and GPS location data, and Python will use the latitude and longitude from that GPS data to request additional weather variables from Open-Meteo before producing a fuller wildfire risk estimate.</p>
+
+      <h4 id="limitation">Limitation:</h4>
+      <p>A limitation of this approach is that it uses fewer variables and simpler rules than real wildfire monitoring systems, so it cannot be as accurate.</p>
+
+      <h4 id="bibliography">Bibliography:</h4>
+      <ol>
+        <li><strong>European Environment Agency:</strong> Forest Information System of Europe. <br><a href="https://forest.eea.europa.eu/">https://forest.eea.europa.eu/</a></li>
+        <li><strong>Bosch:</strong> Early forest fire detection sensors. <br><a href="https://www.bosch.com/stories/early-forest-fire-detection-sensors/">https://www.bosch.com/stories/early-forest-fire-detection-sensors/</a></li>
+        <li><strong>Arnowa:</strong> Smart forest monitoring. <br><a href="https://arnowa.com/smart-forest-monitoring/">https://arnowa.com/smart-forest-monitoring/</a></li>
+        <li><strong>Copernicus Emergency Management Service:</strong> European Forest Fire Information System. <br><a href="https://forest-fire.emergency.copernicus.eu/">https://forest-fire.emergency.copernicus.eu/</a></li>
+        <li><strong>Canadian Wildland Fire Information System:</strong> Fire Weather Index system summary. <br><a href="https://cwfis.cfs.nrcan.gc.ca/background/summary/fwi">https://cwfis.cfs.nrcan.gc.ca/background/summary/fwi</a></li>
+        <li><strong>*MakeCode Micro:bit:</strong> Radio send string reference. <br><a href="https://makecode.microbit.org/v0/reference/radio/send-string">https://makecode.microbit.org/v0/reference/radio/send-string</a></li>
+        <li><strong>*MakeCode Micro:bit:</strong> Serial set RX buffer size reference. <br><a href="https://makecode.microbit.org/reference/serial/set-rx-buffer-size">https://makecode.microbit.org/reference/serial/set-rx-buffer-size</a></li>
+      </ol>
+      <p><strong>*:</strong> References used to identify and solve problems.</p>
+    </section>
+
+  </main>
+
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<head>
+  
+  <title>Leaving Cert Computer Science - Forest Fire Risk Level - Plan and Design</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>Leaving Cert Computer Science</h1>
+    <h2>Forest Fire Risk Level</h2>
+    <hr />
+    <nav>
+      <a href="index.html">Meeting the Brief</a>
+      <a href="investigate.html">Investigate</a>
+      <a href="plan-and-design.html">Plan and Design</a>
+      <a href="create.html">Create</a>
+      <a href="evaluate.html">Evaluate</a>
+    </nav>
+  </header>
+
+  <main>
+    <h3>Index:</h3> 
+    <nav class="sub-nav">
+      <a href="#purpose-of-the-system">1. Purpose of the System</a>
+      <a href="#design-objectives">2. Design Objectives</a>
+      <a href="#project-options-considered">3. Project Options Considered</a>
+      <a href="#justification-of-design-choice">4. Justification of Design Choice</a>
+      <a href="#stakeholders-and-end-user-needs">5. Stakeholders and End-User Needs</a>
+      <a href="#technologies-used">6. Technologies Used</a>
+      <a href="#system-architecture">7. System Architecture</a>
+    </nav>
+
+    <section id="plan-and-design">
+      <h3>Plan and Design</h3>
+      <hr />
+
+      <h4 id="purpose-of-the-system">Purpose of the System:</h4>
+      <p>The purpose of my system is to monitor environmental conditions linked to wildfire risk and then use those conditions to model how dangerous a forest area may be. The project is split into two parts. The embedded side collects live environmental and GPS data and gives an immediate response when conditions become dangerous, while the computer side stores, cleans and models the data in more detail. This allows the project to both react in real time and analyse how risk changes over time.</p>
+
+      <h4 id="design-objectives">Design Objectives:</h4>
+      <ul>
+        <li>The system will use Button A as a digital input to start and pause monitoring.</li>
+        <li>The system will use soil moisture as an analogue input and temperature as a sensor input.</li>
+        <li>The system will collect and transmit live environmental and GPS readings between two Micro:bits.</li>
+        <li>The receiver system will estimate fire risk in real time and update the output automatically.</li>
+        <li>The system will provide clear alerts using LEDs and sound.</li>
+        <li>The system will log sensor and GPS data to a computer for later processing and analysis.</li>
+        <li>The Python side will extract GPS-derived latitude and longitude, use them to request weather data from Open-Meteo, and build a fuller wildfire risk model.</li>
+        <li>The model will test changed conditions through what-if scenarios.</li>
+      </ul>
+
+      <h4 id="project-options-considered">Project Options Considered:</h4>
+      <p><strong>Option 1 - All Processing on the Micro:bit:</strong> One option was to process everything on the Micro:bit. The advantage of this was real-time processing and immediate output. The limitation was that the Micro:bit has limited storage and processing power, so deeper analysis, GPS parsing, weather-data retrieval, and scenario simulation would be difficult.</p>
+      <p><strong>Option 2 - Hybrid Embedded and Python Design:</strong> Another option was to use a hybrid design. The embedded system would still collect live sensor and GPS data and give live alerts, but a computer-based Python system would handle cleaning, GPS parsing, weather-data retrieval, modelling and scenario testing. The advantage of this is that the system can do both live monitoring and deeper analysis. The limitation is that the overall design is more complex.</p>
+      <p><strong>Option 3 - Threshold-Based Logging:</strong> Another option was threshold-based logging, where values would only be stored when they became dangerous. The advantage of this would be smaller datasets. The limitation is that it could miss the gradual build-up to dangerous conditions and give the Python model less context for modelling risk over time. I chose continuous logging while monitoring is active because this captures the trends over time in the data.</p>
+
+      <h4 id="justification-of-design-choice">Justification of Design Choice:</h4>
+      <p>I chose the hybrid design with continuous logging because it best fits the project. The receiver Micro:bit can react quickly to dangerous conditions using a simple live risk calculation, while Python can handle the larger jobs such as cleaning data, organising it into hourly values, extracting GPS latitude and longitude, using those coordinates to request Open-Meteo data, combining that weather data with the project data, and running what-if scenarios. This made the project more realistic and more useful than forcing everything into one stage. It also suited a weighted modelling approach influenced by fire danger systems such as EFFIS <a href="investigate.html#bibliography">[4]</a>, where multiple environmental conditions are combined into one final risk output.</p>
+
+      <h4 id="stakeholders-and-end-user-needs">Stakeholders and End-User Needs:</h4>
+      <p>A forest monitoring stakeholder, such as a ranger or environmental worker, needs a simple system that can warn them when conditions are becoming dangerous. A student or researcher stakeholder needs stored data, clear outputs, and a model that can be tested under different conditions. The main end user is the person operating the finished system, who needs it to be easy to start, easy to understand, and able to provide both an immediate alert and a deeper wildfire-risk result.</p>
+
+      <h4 id="technologies-used">Technologies Used:</h4>
+      <p>The project uses two BBC Micro:bits with radio communication. One Micro:bit sends sensor readings including GPS data and the other receives them, updates the live risk response and triggers the outputs. The main sensor inputs are soil moisture from a Kitronik Prong Soil Moisture Sensor and temperature from the onboard Micro:bit sensors, while an Adafruit Ultimate GPS Breakout module is used to provide latitude and longitude for Open-Meteo weather retrieval. LEDs and a buzzer are used as outputs because they give clear immediate feedback. Serial communication is used to send received data to the computer. CSV files are used for storage because they are simple to inspect and process. Python is used for data cleaning, hourly aggregation, GPS parsing, Open-Meteo data retrieval, wildfire risk modelling and what-if scenarios. The model uses a weighted rule-based wildfire risk approach because it can combine several environmental conditions into one final output in a clear and explainable way.</p>
+
+      <h4 id="system-architecture">System Architecture:</h4>
+      <p>The system is designed as a deliberate pipeline. The sender Micro:bit reads temperature, soil moisture and GPS data and sends those values by radio. The receiver Micro:bit receives the values, updates the current live wildfire-risk response and triggers the correct alert output. The received data is also logged to a computer, where Python cleans it, validates it, extracts latitude and longitude from the GPS data, uses those coordinates to request weather data from Open-Meteo, combines the weather data with the project data, calculates the final wildfire risk, and runs scenario simulations.</p>
+
+      <figure>
+        <img src="Figures/HighLevelOverview.png" alt="High level overview of system" width="800px">
+        <figcaption>Overall system architecture showing environmental sensing and GPS input, radio transmission, live response, serial logging, coordinate-based Open-Meteo retrieval, and Python modelling.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="Figures/EmbeddedSystemView.png" alt="Closer view of the embedded system" width="800px">
+        <figcaption>Embedded monitoring logic showing standby mode, button control, live risk calculation, and LED/buzzer output behaviour.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="Figures/PythonSystemView.png" alt="Closer view of the Python system" width="800px">
+        <figcaption>Python-side data pipeline showing raw CSV logging, cleaning and validation, GPS parsing, coordinate-based Open-Meteo retrieval, hourly aggregation, weather-data combination, wildfire risk modelling, and what-if simulations.</figcaption>
+      </figure>
+    </section>
+
+  </main>
+
+</body>
+
+</html>

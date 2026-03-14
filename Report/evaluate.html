@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Leaving Cert Computer Science - Forest Fire Risk Level - Evaluate</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Leaving Cert Computer Science</h1>
+    <h2>Forest Fire Risk Level</h2>
+    <hr />
+    <nav>
+      <a href="index.html">Meeting the Brief</a>
+      <a href="investigate.html">Investigate</a>
+      <a href="plan-and-design.html">Plan and Design</a>
+      <a href="create.html">Create</a>
+      <a href="evaluate.html">Evaluate</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <h3>Index:</h3>
+    <nav class="sub-nav">
+      <a href="#evaluation-in-relation-to-the-project">1. Evaluation of the Project</a>
+      <a href="#evaluation-in-relation-to-end-users">2. Evaluation in Relation to End Users</a>
+      <a href="#improvements-and-future-iterations">3. Improvements and Future Iterations</a>
+    </nav>
+
+    <section id="evaluate">
+      <h3>Evaluate</h3>
+      <hr />
+
+      <h4 id="evaluation-in-relation-to-the-project">Evaluation of the Project:</h4>
+      <p>Overall, the final artefact met the main aims of the project well. The embedded system successfully collected environmental and GPS data, transmitted it, and responded automatically once monitoring was started. The Python side then cleaned that data, used the GPS-derived latitude and longitude to request added weather data from Open-Meteo, combined it with the project data, modelled wildfire risk, tested changed conditions, and produced a final risk output. This meant the final artefact met the brief well because it included a working embedded system, disaster risk modelling, what-if simulations, and an adaptive response.</p>
+      <p>The most successful requirement was the hybrid structure of the system. The Micro:bit side handled live monitoring and immediate alerts well, while Python handled the heavier tasks of validation, coordinate parsing, weather-data retrieval, modelling, and scenario testing. This made the artefact much more useful than if everything had been done only on the embedded side, and it also made the project feel like one connected pipeline instead of several unrelated parts.</p>
+      <p>The most challenging and less successful part of the project was the accuracy of the final wildfire model. Although the model worked and produced believable outputs, it still depended heavily on the quality of the logged data and on a limited number of input variables. This means that any problems in transmission, GPS parsing, cleaning, or added weather-data retrieval could affect the final result, and it also means the model is still much simpler than a real wildfire monitoring system.</p>
+
+      <h4 id="evaluation-in-relation-to-end-users">Evaluation in Relation to End Users:</h4>
+      <p>The project met the needs of the main end user well because it gives a clear way to monitor forest fire risk and test how that risk changes over time. A forest monitoring user would benefit from the live LED and sound alerts, because these give a simple warning when conditions become more dangerous. A student or researcher would benefit from the logged data, cleaned datasets, graphs, and model outputs, because these make the system easier to analyse and compare over time.</p>
+      <p>However, stakeholder needs were only partly met in terms of real-world accuracy. A real forest monitoring stakeholder would want more environmental inputs, a wider sensor network, and a more advanced model before relying on the system for serious decision-making. Because of this, my artefact is more useful as a working prototype and simulation system than as a complete real-world wildfire warning system.</p>
+
+      <h4 id="improvements-and-future-iterations">Improvements and Future Iterations:</h4>
+      <p>One strong improvement would be to add more live environmental inputs, especially a direct humidity or wind sensor, and then feed those readings straight into the model. This would reduce reliance on Open-Meteo data pulled using GPS coordinates and make the final risk output more self-contained and realistic. It would also improve the disaster risk modelling requirement because more of the final result would come directly from the artefact itself rather than from added external weather data.</p>
+      <p>Another useful improvement would be to make the embedded side show more detailed live feedback, such as the current risk category on screen as well as the LED and sound output. This could be done by adding a clearer text or icon-based display on the receiver side so that the user could see whether the system considered the conditions Low, Moderate, High, or Extreme. This would make the system easier for an end user to understand in real time and would strengthen the adaptive-system side of the brief.</p>
+    
+      <h4>Summary Word Count</h4>
+      <table>
+        <tr><th>Section</th><th>Word Count</th></tr>
+        <tr><td>1. Meeting the Brief</td><td>~400</td></tr>
+        <tr><td>2. Investigation</td><td>~450</td></tr>
+        <tr><td>3. Plan and Design</td><td>~600</td></tr>
+        <tr><td>4. Create</td><td>~650</td></tr>
+        <tr><td>5. Evaluation</td><td>~400</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>~2500</strong></td></tr>
+      </table>
+    </section>
+
+  </main>
+
+</body>
+
+</html>

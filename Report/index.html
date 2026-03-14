@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Leaving Cert Computer Science - Forest Fire Risk Level - Meeting the Brief</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Leaving Cert Computer Science</h1>
+    <h2>Forest Fire Risk Level</h2>
+    <hr />
+    <nav>
+      <a href="index.html">Meeting the Brief</a>
+      <a href="investigate.html">Investigate</a>
+      <a href="plan-and-design.html">Plan and Design</a>
+      <a href="create.html">Create</a>
+      <a href="evaluate.html">Evaluate</a>
+    </nav>
+  </header>
+
+  <main>
+    <h3>Index:</h3>
+    <nav class="sub-nav">
+      <a href="#introduction">1. Introduction</a>
+      <a href="#br1">2. BR1 - Embedded System Design</a>
+      <a href="#br2">3. BR2 - Data Collection</a>
+      <a href="#br3">4. BR3 - Process Simulation</a>
+      <a href="#advanced-requirement-1">5. Advanced Requirement 1</a>
+      <a href="#advanced-requirement-2">6. Advanced Requirement 2</a>
+      <a href="#advanced-requirement-3">7. Advanced Requirement 3</a>
+    </nav>
+
+    <section id="meeting-the-brief">
+      <h3>Meeting the Brief</h3>
+      <hr />
+
+      <h4 id="introduction">Introduction:</h4>
+      <p>This video shows my artefact in operation and demonstrates the full project pipeline: the embedded system collects local environmental and GPS data, the receiver responds automatically as the danger level changes, and the Python side cleans the logged data, uses GPS-derived latitude and longitude to request Open-Meteo data, models wildfire risk, and tests changed conditions.</p>
+
+      <figure>
+        <div class="placeholder">[Insert Embedded Video Here]</div>
+        <figcaption>Video demonstration of the completed artefact showing the system in operation and how it meets the project requirements.</figcaption>
+      </figure>
+
+      <h4>Basic Requirements:</h4>
+
+      <h4 id="br1">BR1 - Embedded System Design:</h4>
+      <p>The video first shows the embedded system itself working. Button A is used as a digital input to start or pause monitoring, the soil moisture sensor is used as an analogue input, and the receiver Micro:bit gives a primary output through LEDs and sound. Once started, the system runs automatically and keeps responding as the conditions change.</p>
+
+      <figure>
+        <div class="placeholder">[Insert Screenshot or Video Still: embedded system inputs and live output]</div>
+        <figcaption>The embedded system using a digital input, analogue input, and primary output while operating automatically once started.</figcaption>
+      </figure>
+
+      <h4 id="br2">BR2 - Data Collection:</h4>
+      <p>The video then shows the system collecting and storing environmental data related to wildfire risk. The received sensor and GPS readings are logged to the computer and saved so that they can be used later in the Python model.</p>
+
+      <figure>
+        <div class="placeholder">[Insert Screenshot: raw logged environmental data]</div>
+        <figcaption>Raw environmental data collected and stored by the system for later use in the model.</figcaption>
+      </figure>
+
+      <h4 id="br3">BR3 - Process Simulation:</h4>
+      <p>The video also shows the system simulating a real-world process related to the theme, in this case wildfire risk. As the input conditions become more dangerous, the receiver updates the risk response and the alert output changes. This shows how the system behaves under changing environmental conditions.</p>
+
+      <figure>
+        <div class="placeholder">[Insert Screenshot: changing risk/alert output under different conditions]</div>
+        <figcaption>The embedded system simulating wildfire risk and changing its response as environmental conditions change.</figcaption>
+      </figure>
+
+      <h4 id="advanced-requirement-1">Advanced Requirement 1 - Disaster Risk Modelling:</h4>
+      <p><strong>Function:</strong> The Python side parses GPS latitude and longitude from the logged project data, uses those coordinates to request location-based weather data from Open-Meteo, and combines that weather data with the project sensor readings to calculate wildfire risk more fully.</p>
+      <p><strong>What it looks like in the video:</strong> The video will show the logged data being cleaned, the GPS coordinates being parsed, the additional weather data being added, the model running, and the final wildfire risk output being produced.</p>
+
+      <figure>
+        <img src="Figures/AR1Visualised.png" alt="3 graphs of outputted model data; risk over time, bar chart of risk band counts, and correlation heatmap of variables" width="800px">
+        <figcaption>The wildfire risk model producing a final risk result from cleaned sensor data plus Open-Meteo data, producing three graphs: a risk-over-time graph, a bar chart of risk band counts, and a correlation heatmap of the variables involved in the calculation.</figcaption>
+      </figure>
+
+      <h4 id="advanced-requirement-2">Advanced Requirement 2 - What-If Simulations:</h4>
+      <p><strong>Function:</strong> The same model is tested under changed environmental conditions to see how the predicted risk changes.</p>
+      <p><strong>What it looks like in the video:</strong> The video will show a dry spell scenario and an extreme weather scenario, followed by a comparison of the outputs.</p>
+
+      <figure>
+        <img src="Figures/AR2VisualisedDrySpell.png" alt="A risk-over-time line graph of a dry spell setting" width="800px">
+        <img src="Figures/AR2VisualisedExtremeHeatandWind.png" alt="A risk-over-time line graph of an extreme heat and windy setting" width="800px">
+        <figcaption>Comparison of the model’s wildfire-risk-over-time result between the dry spell and extreme weather scenario outputs.</figcaption>
+      </figure>
+
+      <h4 id="advanced-requirement-3">Advanced Requirement 3 - Adaptive System:</h4>
+      <p><strong>Function:</strong> The system automatically changes its response when the conditions become more dangerous.</p>
+      <p><strong>What it looks like in the video:</strong> The video will show the risk level increasing and the system updating its alert output automatically.</p>
+
+      <figure>
+        <div class="placeholder">[Insert Screenshot: changing alert output]</div>
+        <figcaption>Automatic receiver response as wildfire risk increases, using LEDs and sound alerts.</figcaption>
+      </figure>
+    </section>
+  </main>
+</body>
+</html>
