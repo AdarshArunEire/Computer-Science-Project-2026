@@ -82,14 +82,6 @@ figcaption {
   font-size: 0.95em;
 }
 
-.placeholder {
-  border: 1px dashed #2de727cb;
-  background-color: #3634b9;
-  color: #d10a0a;
-  padding: 28px 18px;
-  text-align: center;
-}
-
 a {
   color: #2a6e2a;
 }
