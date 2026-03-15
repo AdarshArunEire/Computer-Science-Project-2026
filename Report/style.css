@@ -83,9 +83,9 @@ figcaption {
 }
 
 .placeholder {
-  border: 1px dashed #9aa08f;
-  background-color: #fafaf6;
-  color: #5e6456;
+  border: 1px dashed #2de727cb;
+  background-color: #3634b9;
+  color: #d10a0a;
   padding: 28px 18px;
   text-align: center;
 }

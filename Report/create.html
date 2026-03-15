@@ -45,7 +45,7 @@
       <p><strong>Milestone 2:</strong> The next major milestone was solving the GPS and radio transmission issue. GPS data had to be split into smaller chunks, transmitted, rebuilt, and then parsed correctly. Fixing this made the logging system more reliable and made it possible to extract latitude and longitude for later weather retrieval.</p>
       <figure>
         <img src="Figures/Firstrawgpsmicrobitdata.png" alt="First few rows of uncleaned logged Micro:bit data with GPS data" width="800">
-        <figcaption>Lines of latitude and longitude data after the GPS got a fix, following the solution to the buffer and character-limit problem.</figcaption>
+        <figcaption>Lines of latitude and longitude data before and after the second the GPS got a fix, following the solution to the buffer and character-limit <a href="#problems-encountered-during-create-stage">problem.</a></figcaption>
       </figure>
 
       <p><strong>Milestone 3:</strong> After that, I built the cleaning pipeline. The raw data was not ready for modelling directly, so I cleaned it, removed duplicates, handled missing values, grouped it into hourly data, and added matching hourly Open-Meteo data.</p>
@@ -60,11 +60,17 @@
         <figcaption>Development and tuning of the wildfire risk model.</figcaption>
       </figure>
 
-      <p><strong>Milestone 5:</strong> The final major milestone was adding the what-if scenarios. I created a dry spell scenario and an extreme weather scenario so that the same model could be tested under more dangerous conditions over time.</p>
+      <p><strong>Milestone 5:</strong> Another major milestone was adding the what-if scenarios. I created a dry spell scenario and an extreme weather scenario so that the same model could be tested under more dangerous conditions over time.</p>
       <figure>
         <img src="Figures/AR2VisualisedDrySpell.png" alt="Dry spell scenario wildfire risk over time" width="800">
         <img src="Figures/AR2VisualisedExtremeHeatandWind.png" alt="Extreme weather scenario wildfire risk over time" width="800">
-        <figcaption>Final scenario testing showing how wildfire risk changes under different conditions.</figcaption>
+        <figcaption>Scenario testing showing how wildfire risk changes under different conditions.</figcaption>
+      </figure>
+
+      <p><strong>Milestone 6:</strong> The final milestone was adding a separate adaptive risk tracking stage for AR3. This compared each new wildfire-risk row to the previous one, reported whether the risk had increased, decreased, or stayed the same, and also labelled the short trend as rising, falling, or stable. This seperated AR3 from the physical BR3 of lights + alert response, as this demonstrates trends over time instead of just a threshold being crossed.</p>
+      <figure>
+        <img src="Figures/AR3VisualisedDryspell.png" alt="Adaptive risk tracking output for the dry spell scenario" width="800">
+        <figcaption>Adaptive risk tracking output for the dry spell scenario. The separated band changes matched the changes in the risk-over-time plot, which made the adaptive behaviour easier to see.</figcaption>
       </figure>
 
       <h4 id="description-of-the-model">Description of the Model:</h4>
