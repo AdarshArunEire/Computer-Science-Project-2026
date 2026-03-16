@@ -53,8 +53,6 @@ def dryspell_scenario():
         }
 
         df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
-
-    print(df)
     return df
 
 # 2. Generate a df of an extreme hot/windy scenario

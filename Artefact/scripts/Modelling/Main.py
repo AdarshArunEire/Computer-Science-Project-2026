@@ -3,7 +3,7 @@ from HelperFunctions import visualise, improved_input
 from WhatIfGenerator import dryspell_scenario, extreme_scenario, custom_scenario
 from AdaptiveRiskTracker import adaptive_risk_tracker
 import pandas as pd
-
+from time import sleep
 
 while True:
     # 1. Ask user what they want to run
@@ -73,7 +73,7 @@ while True:
         ans2 = improved_input(
             "Choose scenario:\n"
             "[1] Scenario 1: Dry Spell\n"
-            "[2] Scenario 2: Extreme Heat/Wind\n"
+            "[2] Scenario 2: Extreme Heat and Drier Atmosphere\n"
             "[3] Scenario 3: Custom\n"
             "(1/2/3): ",
             [1, 2, 3],
@@ -83,14 +83,59 @@ while True:
         if ans2 == 1:
             scenario_df = dryspell_scenario()
             export_path = "Artefact/data/DrySpellRiskModel.csv"
-            print("\n################################################################\n")
-            print("Running preset: Dry-spell simulation")
+            print("""
+################################################################
+                  
+SCENARIO 1: DRY SPELL
+------------------------------------------------------------
+Comparison window: 14 days
+Purpose: test how prolonged dry conditions affect wildfire risk
+
+Changed conditions:
+- No rainall (set to 0mm)
+- Soil moisture starts wet, then steadily dries over time
+Conditions kept fairly regular:
+- Temperature follows a normal daily cycle of about 12°C to 24°C, 
+    modelled by a cosine function for a daylight cycle
+- Humidity fixed at 80%
+- Wind speed fixed at 5 m/s
+
+Expected effect:
+- Risk should increase over time compared with the baseline
+because reasearch showed continued dryness increases fire danger.
+
+################################################################                      
+                    """)
+            sleep(1)
 
         elif ans2 == 2:
             scenario_df = extreme_scenario()
-            export_path = "Artefact/data/ExtremeHeatWindRiskModel.csv"
-            print("\n################################################################\n")
-            print("Running preset: Extreme heat and wind simulation")
+            export_path = "Artefact/data/ExtremeHeatRiskModel.csv"
+            print("""
+################################################################
+
+SCENARIO 2: EXTREME HEAT / DRIER ATMOSPHERE
+------------------------------------------------------------
+Comparison window: 14 days
+Purpose: test how hotter and drier atmospheric conditions
+affect wildfire risk
+
+Changed conditions:
+- Temperature increased to roughly 23°C to 38°C
+- Humidity reduced to 50%
+- Soil moisture starts drier than Scenario 1
+- Rainfall mostly 0 mm, with one short rain event
+
+Conditions not changed:
+- Wind speed remains fixed at 5 m/s
+
+Expected effect:
+- Risk should be higher than the baseline because hotter,
+  drier conditions increase wildfire danger.
+                  
+################################################################
+                """)
+            sleep(1)
 
         elif ans2 == 3:
             scenario_df = custom_scenario()
@@ -126,8 +171,10 @@ while True:
 
             if ans2 == 1:
                 adaptive_export_path = "Artefact/data/DrySpellAdaptiveTracking.csv"
+
             elif ans2 == 2:
-                adaptive_export_path = "Artefact/data/ExtremeHeatWindAdaptiveTracking.csv"
+                adaptive_export_path = "Artefact/data/ExtremeHeatAdaptiveTracking.csv"
+
             else:
                 adaptive_export_path = "Artefact/data/CustomScenarioAdaptiveTracking.csv"
 
@@ -149,7 +196,7 @@ while True:
         if file_path == "":
             file_path = "Artefact/data/MicrobitDataHourlyClean.csv"
 
-        if "RiskModel" not in file_path:
+        if not ("riskmodel" in file_path):
             # 4.b Run model first, because AR3 depends on wildfire risk output
             model_df = dynamic_wildfire_risk_model(file_path)
             model_df.to_csv("Artefact/data/AR3DataRiskModel.csv", index=False)

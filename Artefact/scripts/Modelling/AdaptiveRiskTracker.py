@@ -11,7 +11,7 @@ trend_window = 3         # Number of previous rows used to judge short trend dir
 trend_threshold = 0.05   # Minimum difference from recent average to count as rising/falling
 
 # Speed of ouput
-duration = 5 # Seconds to complete program
+duration = 10 # Seconds to complete program
 
 ###############################################################################
 
@@ -104,12 +104,13 @@ def adaptive_risk_tracker(risk_input):
                 print(
                     f"{time_value} | {risk_change} by {risk_change_value:.2f} | {band_change} | Trend: {trend}"
                 )
-                if "Extreme" in band_change:
+                if "to Extreme" in band_change: # If trending into extreme risk, send alert
                     print("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
                     print("ALERT: WILDFIRE RISK IS BECOMING EXTREME; ALERT RELEVANT AUTHORITIES")
                     print("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    sleep(1)
                 print("\n#####################################################################################")
-                sleep(1)
+                sleep(0.1)
             else:
                 print(
                     f"{time_value} | {risk_change} by {risk_change_value:.2f} | {band_change} | Trend: {trend}"

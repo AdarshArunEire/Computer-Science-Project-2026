@@ -24,12 +24,12 @@ m_input = 0.25   # how much this hour feeds into carryover
 f_instant = 0.65 # how much current conditions matter in the final risk
 f_memory = 0.35  # how much built-up dryness matters in the final risk
 
-risk_floor = 0.0125   # The minimum final risk score, used to rescale the final risk score to a percentage
-risk_ceiling = 0.1100 # The final risk score that corresponds to 100% risk, used to rescale the final risk score to a percentage
+risk_floor = 0.0125   # The minimum final risk score, used to rescale the final risk score to an index 0-20
+risk_ceiling = 0.11 # The final risk score that corresponds to max risk, used to rescale the final risk score to an index 0-20
 
 ###############################################################################
 
-# Bands for final wildfire risk index
+# Bands for final wildfire risk index (out of 20)
 moderate_risk = 5
 high_risk = 10
 extreme_risk = 15
