@@ -1,4 +1,4 @@
-My 2026 computer science submission# Forest Fire Risk Monitoring and Scenario Modelling
+# Forest Fire Risk Monitoring and Scenario Modelling
 
 An end-to-end environmental risk modelling project combining embedded systems, data processing, and rule-based modelling.
 
